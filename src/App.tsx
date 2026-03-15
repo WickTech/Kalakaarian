@@ -1,10 +1,17 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { useCart } from "@/hooks/useCart";
 import { CartDrawer } from "@/components/CartDrawer";
+import LandingPage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
+import RoleSelectPage from "./pages/RoleSelectPage";
+import InfluencerRegisterPage from "./pages/InfluencerRegisterPage";
+import BrandRegisterPage from "./pages/BrandRegisterPage";
+import BrandCampaignPage from "./pages/BrandCampaignPage";
 import Landing from "./pages/Landing";
 import Marketplace from "./pages/Marketplace";
 import NotFound from "./pages/NotFound";
@@ -21,8 +28,14 @@ const App = () => {
       <TooltipProvider>
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/role-select" element={<RoleSelectPage />} />
+            <Route path="/influencer/register" element={<InfluencerRegisterPage />} />
+            <Route path="/brand/register" element={<BrandRegisterPage />} />
+            <Route path="/brand/campaign" element={<BrandCampaignPage />} />
             <Route
-              path="/"
+              path="/landing"
               element={
                 <Landing
                   dark={dark}
@@ -55,6 +68,7 @@ const App = () => {
             clearCart={cart.clearCart}
             total={cart.total}
           />
+          <Toaster />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
