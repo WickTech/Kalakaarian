@@ -37,9 +37,16 @@ interface InfluencerRegisterFormData {
   engagementRate: string;
 }
 
+interface InfluencerErrors {
+  fullName?: string;
+  bio?: string;
+  social?: string;
+  niches?: string;
+}
+
 export default function InfluencerRegisterPage() {
   const { toast } = useToast();
-  const [errors, setErrors] = useState<string[]>([]);
+  const [errors, setErrors] = useState<InfluencerErrors>({});
   const [form, setForm] = useState<InfluencerRegisterFormData>({
     fullName: "",
     bio: "",
@@ -66,17 +73,17 @@ export default function InfluencerRegisterPage() {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const nextErrors: string[] = [];
-    if (!form.fullName.trim()) nextErrors.push("Full Name is required.");
-    if (!form.bio.trim()) nextErrors.push("Bio is required.");
-    if (form.bio.length > 300) nextErrors.push("Bio cannot exceed 300 characters.");
-    if (form.niches.length === 0) nextErrors.push("Please select at least one niche.");
+    const nextErrors: InfluencerErrors = {};
+    if (!form.fullName.trim()) nextErrors.fullName = "Full Name is required.";
+    if (!form.bio.trim()) nextErrors.bio = "Bio is required.";
+    if (form.bio.length > 300) nextErrors.bio = "Bio cannot exceed 300 characters.";
+    if (form.niches.length === 0) nextErrors.niches = "Please select at least one niche.";
 
     const hasSocial = [form.instagramHandle, form.youtubeUrl, form.tiktokHandle, form.twitterHandle].some((value) => value.trim().length > 0);
-    if (!hasSocial) nextErrors.push("Provide at least one social media handle.");
+    if (!hasSocial) nextErrors.social = "At least one social media handle is required.";
 
     setErrors(nextErrors);
-    if (nextErrors.length > 0) return;
+    if (Object.keys(nextErrors).length > 0) return;
 
     toast({
       title: "Registration submitted",
@@ -96,14 +103,15 @@ export default function InfluencerRegisterPage() {
       tiktokFollowers: "",
       engagementRate: "",
     });
+    setErrors({});
   };
 
   return (
-    <main className="min-h-screen bg-muted/20 px-4 py-8 sm:px-6 sm:py-10">
+    <main className="min-h-screen bg-gradient-to-br from-purple-700 via-fuchsia-600 to-pink-500 px-4 py-8 sm:px-6 sm:py-10">
       <div className="mx-auto w-full max-w-3xl space-y-4">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <Link to="/role-select" className="inline-flex items-center gap-2 text-sm text-white/90 hover:text-white">
           <ArrowLeft className="h-4 w-4" />
-          Back to Home
+          Back
         </Link>
 
         <Card>
@@ -123,6 +131,7 @@ export default function InfluencerRegisterPage() {
                     onChange={(event) => setForm((prev) => ({ ...prev, fullName: event.target.value }))}
                     placeholder="Enter your full name"
                   />
+                  {errors.fullName && <p className="text-xs text-destructive">{errors.fullName}</p>}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="bio">Bio *</Label>
@@ -134,6 +143,7 @@ export default function InfluencerRegisterPage() {
                     placeholder="Tell brands about your content style, audience, and strengths"
                   />
                   <p className="text-right text-xs text-muted-foreground">{bioCount}/300</p>
+                  {errors.bio && <p className="text-xs text-destructive">{errors.bio}</p>}
                 </div>
               </section>
 
@@ -146,6 +156,7 @@ export default function InfluencerRegisterPage() {
                   <Input placeholder="TikTok handle" value={form.tiktokHandle} onChange={(event) => setForm((prev) => ({ ...prev, tiktokHandle: event.target.value }))} />
                   <Input placeholder="Twitter/X handle" value={form.twitterHandle} onChange={(event) => setForm((prev) => ({ ...prev, twitterHandle: event.target.value }))} />
                 </div>
+                {errors.social && <p className="text-xs text-destructive">{errors.social}</p>}
               </section>
 
               <section className="space-y-3">
@@ -158,6 +169,7 @@ export default function InfluencerRegisterPage() {
                     </label>
                   ))}
                 </div>
+                {errors.niches && <p className="text-xs text-destructive">{errors.niches}</p>}
               </section>
 
               <section className="space-y-3">
@@ -173,17 +185,7 @@ export default function InfluencerRegisterPage() {
                 </div>
               </section>
 
-              {errors.length > 0 && (
-                <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-                  <ul className="list-disc space-y-1 pl-4">
-                    {errors.map((error) => (
-                      <li key={error}>{error}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
+              <Button type="submit" className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-95">
                 Submit Registration
               </Button>
             </form>

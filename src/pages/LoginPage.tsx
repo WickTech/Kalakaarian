@@ -1,46 +1,83 @@
-import { Star, Building2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormEvent, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+interface LoginFormData {
+  email: string;
+  password: string;
+}
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [form, setForm] = useState<LoginFormData>({ email: "", password: "" });
+  const [error, setError] = useState("");
+
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!form.email.trim() || !form.password.trim()) {
+      setError("Please enter both email and password.");
+      return;
+    }
+
+    setError("");
+    navigate("/role-select");
+  };
 
   return (
-    <main className="min-h-screen bg-muted/30 px-4 py-10 sm:py-16">
-      <div className="mx-auto flex w-full max-w-xl items-center justify-center">
-        <Card className="w-full shadow-lg">
-          <CardHeader className="space-y-3 text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground">Kalakaarian</p>
-            <CardTitle className="text-3xl font-bold">Choose Your Role</CardTitle>
-            <CardDescription className="text-base">Connect Influencers with Brands</CardDescription>
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-700 via-fuchsia-600 to-pink-500 px-4 py-10">
+      <div className="w-full max-w-md space-y-4">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm text-white/90 hover:text-white">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Link>
+
+        <Card>
+          <CardHeader className="text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground">Kalakaarian</p>
+            <CardTitle className="text-2xl">Login</CardTitle>
+            <CardDescription>Sign in to continue and choose your role.</CardDescription>
           </CardHeader>
+          <CardContent>
+            <form onSubmit={onSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
+                  placeholder="you@example.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={form.password}
+                  onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
+                  placeholder="••••••••"
+                />
+              </div>
 
-          <CardContent className="grid gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              className="h-20 justify-start gap-4 border-purple-300 bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800 dark:border-purple-600/70 dark:bg-purple-950/40 dark:text-purple-200"
-              onClick={() => navigate("/influencer/register")}
-            >
-              <Star className="h-6 w-6" />
-              <span className="text-left">
-                <span className="block text-lg font-semibold">I&apos;m an Influencer</span>
-                <span className="block text-xs text-current/80">Register and showcase your creator profile</span>
-              </span>
-            </Button>
+              {error && <p className="text-sm text-destructive">{error}</p>}
 
-            <Button
-              type="button"
-              className="h-20 justify-start gap-4"
-              onClick={() => navigate("/brand/campaign")}
-            >
-              <Building2 className="h-6 w-6" />
-              <span className="text-left">
-                <span className="block text-lg font-semibold">I&apos;m a Brand</span>
-                <span className="block text-xs text-primary-foreground/80">Create campaigns and find ideal influencers</span>
-              </span>
-            </Button>
+              <Button type="submit" className="w-full">
+                Login
+              </Button>
+            </form>
+
+            <p className="mt-4 text-center text-sm text-muted-foreground">
+              Don&apos;t have an account?{" "}
+              <Link to="/role-select" className="font-semibold text-purple-700 hover:text-purple-900">
+                Get Started
+              </Link>
+            </p>
           </CardContent>
         </Card>
       </div>

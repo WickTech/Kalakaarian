@@ -6,8 +6,11 @@ import { useState } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { useCart } from "@/hooks/useCart";
 import { CartDrawer } from "@/components/CartDrawer";
+import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
+import RoleSelectPage from "./pages/RoleSelectPage";
 import InfluencerRegisterPage from "./pages/InfluencerRegisterPage";
+import BrandRegisterPage from "./pages/BrandRegisterPage";
 import BrandCampaignPage from "./pages/BrandCampaignPage";
 import Landing from "./pages/Landing";
 import Marketplace from "./pages/Marketplace";
@@ -25,8 +28,11 @@ const App = () => {
       <TooltipProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<LoginPage />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/role-select" element={<RoleSelectPage />} />
             <Route path="/influencer/register" element={<InfluencerRegisterPage />} />
+            <Route path="/brand/register" element={<BrandRegisterPage />} />
             <Route path="/brand/campaign" element={<BrandCampaignPage />} />
             <Route
               path="/landing"
