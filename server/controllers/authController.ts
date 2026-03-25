@@ -31,7 +31,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       await BrandProfile.create({ userId: user._id });
     }
 
-    const token = generateToken(user._id.toString());
+    const token = generateToken(user._id.toString(), user.role);
 
     res.status(201).json({
       user: {
@@ -64,7 +64,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const token = generateToken(user._id.toString());
+    const token = generateToken(user._id.toString(), user.role);
 
     res.json({
       user: {

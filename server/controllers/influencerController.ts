@@ -26,15 +26,17 @@ export const getInfluencers = async (req: Request, res: Response): Promise<void>
     if (tier) query.tier = tier;
 
     if (minFollowers || maxFollowers) {
-      query['followers.instagram'] = {};
-      if (minFollowers) query['followers.instagram'].$gte = Number(minFollowers);
-      if (maxFollowers) query['followers.instagram'].$lte = Number(maxFollowers);
+      const followersQuery: Record<string, number> = {};
+      if (minFollowers) followersQuery.$gte = Number(minFollowers);
+      if (maxFollowers) followersQuery.$lte = Number(maxFollowers);
+      query['followers.instagram'] = followersQuery;
     }
 
     if (minPrice || maxPrice) {
-      query.price = {};
-      if (minPrice) query.price.$gte = Number(minPrice);
-      if (maxPrice) query.price.$lte = Number(maxPrice);
+      const priceQuery: Record<string, number> = {};
+      if (minPrice) priceQuery.$gte = Number(minPrice);
+      if (maxPrice) priceQuery.$lte = Number(maxPrice);
+      query.price = priceQuery;
     }
 
     const sort: Record<string, 1 | -1> = {};
@@ -134,15 +136,17 @@ export const searchInfluencers = async (req: Request, res: Response): Promise<vo
     if (platform) query.platform = platform;
 
     if (minFollowers || maxFollowers) {
-      query['followers.instagram'] = {};
-      if (minFollowers) query['followers.instagram'].$gte = Number(minFollowers);
-      if (maxFollowers) query['followers.instagram'].$lte = Number(maxFollowers);
+      const followersQuery: Record<string, number> = {};
+      if (minFollowers) followersQuery.$gte = Number(minFollowers);
+      if (maxFollowers) followersQuery.$lte = Number(maxFollowers);
+      query['followers.instagram'] = followersQuery;
     }
 
     if (minPrice || maxPrice) {
-      query.price = {};
-      if (minPrice) query.price.$gte = Number(minPrice);
-      if (maxPrice) query.price.$lte = Number(maxPrice);
+      const priceQuery: Record<string, number> = {};
+      if (minPrice) priceQuery.$gte = Number(minPrice);
+      if (maxPrice) priceQuery.$lte = Number(maxPrice);
+      query.price = priceQuery;
     }
 
     const influencers = await InfluencerProfile.find(query)
@@ -200,7 +204,7 @@ export const updateInfluencerProfile = async (req: AuthRequest, res: Response): 
 
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) {
-        (influencerProfile as Record<string, unknown>)[field] = req.body[field];
+        (influencerProfile as unknown as Record<string, unknown>)[field] = req.body[field];
       }
     }
 
