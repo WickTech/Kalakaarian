@@ -1,10 +1,11 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/hooks/useAuth";
 
 interface LoginFormData {
   email: string;
@@ -13,10 +14,11 @@ interface LoginFormData {
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { login, isLoading, error: authError, clearError } = useAuth();
   const [form, setForm] = useState<LoginFormData>({ email: "", password: "" });
   const [error, setError] = useState("");
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!form.email.trim() || !form.password.trim()) {
@@ -25,7 +27,14 @@ export default function LoginPage() {
     }
 
     setError("");
-    navigate("/role-select");
+    clearError();
+
+    try {
+      await login(form.email, form.password);
+      navigate("/marketplace");
+    } catch {
+      // Error is handled by AuthContext
+    }
   };
 
   return (
@@ -65,9 +74,10 @@ export default function LoginPage() {
                 />
               </div>
 
-              {error && <p className="text-sm text-destructive">{error}</p>}
+              {(error || authError) && <p className="text-sm text-destructive">{error || authError}</p>}
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 Login
               </Button>
             </form>

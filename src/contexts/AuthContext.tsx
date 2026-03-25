@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { authAPI } from "@/api/auth";
+import { getErrorMessage } from "@/api/axios";
 
 export interface User {
   id: string;
@@ -14,6 +15,7 @@ export interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  error: string | null;
 }
 
 export interface AuthContextType extends AuthState {
@@ -21,6 +23,7 @@ export interface AuthContextType extends AuthState {
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
+  clearError: () => void;
 }
 
 export interface RegisterData {
@@ -41,7 +44,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     token: null,
     isAuthenticated: false,
     isLoading: true,
+    error: null,
   });
+
+  const clearError = useCallback(() => {
+    setState((prev) => ({ ...prev, error: null }));
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem(TOKEN_KEY);
@@ -67,34 +75,61 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const response = await authAPI.login(email, password);
-    
-    localStorage.setItem(TOKEN_KEY, response.token);
-    localStorage.setItem(USER_KEY, JSON.stringify(response.user));
-    
-    setState({
-      user: response.user,
-      token: response.token,
-      isAuthenticated: true,
-      isLoading: false,
-    });
+    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+    try {
+      const response = await authAPI.login(email, password);
+      
+      localStorage.setItem(TOKEN_KEY, response.token);
+      localStorage.setItem(USER_KEY, JSON.stringify(response.user));
+      
+      setState({
+        user: response.user,
+        token: response.token,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+    } catch (error) {
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: getErrorMessage(error),
+      }));
+      throw error;
+    }
   }, []);
 
   const register = useCallback(async (data: RegisterData) => {
-    const response = await authAPI.register(data);
-    
-    localStorage.setItem(TOKEN_KEY, response.token);
-    localStorage.setItem(USER_KEY, JSON.stringify(response.user));
-    
-    setState({
-      user: response.user,
-      token: response.token,
-      isAuthenticated: true,
-      isLoading: false,
-    });
+    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+    try {
+      const response = await authAPI.register(data);
+      
+      localStorage.setItem(TOKEN_KEY, response.token);
+      localStorage.setItem(USER_KEY, JSON.stringify(response.user));
+      
+      setState({
+        user: response.user,
+        token: response.token,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+    } catch (error) {
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: getErrorMessage(error),
+      }));
+      throw error;
+    }
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    try {
+      await authAPI.logout();
+    } catch {
+      // Ignore logout errors
+    }
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     
@@ -103,6 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       token: null,
       isAuthenticated: false,
       isLoading: false,
+      error: null,
     });
   }, []);
 
@@ -112,7 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ ...state, login, register, logout, updateUser, clearError }}>
       {children}
     </AuthContext.Provider>
   );

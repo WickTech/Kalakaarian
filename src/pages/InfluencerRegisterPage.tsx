@@ -1,7 +1,8 @@
 import { FormEvent, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -46,6 +47,8 @@ interface InfluencerErrors {
 
 export default function InfluencerRegisterPage() {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { register, isLoading } = useAuth();
   const [errors, setErrors] = useState<InfluencerErrors>({});
   const [form, setForm] = useState<InfluencerRegisterFormData>({
     fullName: "",
@@ -70,7 +73,7 @@ export default function InfluencerRegisterPage() {
     }));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const nextErrors: InfluencerErrors = {};
@@ -85,10 +88,25 @@ export default function InfluencerRegisterPage() {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    toast({
-      title: "Registration submitted",
-      description: "Your influencer profile has been saved successfully.",
-    });
+    try {
+      await register({
+        email: `${form.fullName.toLowerCase().replace(/\s/g, ".")}@example.com`,
+        password: "TempPassword123!",
+        name: form.fullName,
+        role: "influencer",
+      });
+      toast({
+        title: "Registration submitted",
+        description: "Your influencer profile has been saved successfully.",
+      });
+      navigate("/marketplace");
+    } catch {
+      toast({
+        title: "Registration failed",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    }
 
     setForm({
       fullName: "",
@@ -185,7 +203,8 @@ export default function InfluencerRegisterPage() {
                 </div>
               </section>
 
-              <Button type="submit" className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-95">
+              <Button type="submit" className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-95" disabled={isLoading}>
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 Submit Registration
               </Button>
             </form>

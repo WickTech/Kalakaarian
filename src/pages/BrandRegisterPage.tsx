@@ -1,7 +1,8 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,7 @@ interface BrandRegisterErrors {
 export default function BrandRegisterPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { register, isLoading } = useAuth();
 
   const [form, setForm] = useState<BrandRegisterFormData>({
     companyName: "",
@@ -37,7 +39,7 @@ export default function BrandRegisterPage() {
   });
   const [errors, setErrors] = useState<BrandRegisterErrors>({});
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const nextErrors: BrandRegisterErrors = {};
@@ -50,12 +52,25 @@ export default function BrandRegisterPage() {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    toast({
-      title: "Submitted",
-      description: "Your brand profile has been submitted!",
-    });
-
-    navigate("/brand/campaign");
+    try {
+      await register({
+        email: form.email,
+        password: "TempPassword123!",
+        name: form.companyName,
+        role: "brand",
+      });
+      toast({
+        title: "Submitted",
+        description: "Your brand profile has been submitted!",
+      });
+      navigate("/brand/campaign");
+    } catch {
+      toast({
+        title: "Registration failed",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -113,7 +128,8 @@ export default function BrandRegisterPage() {
                 {errors.industry && <p className="text-xs text-destructive">{errors.industry}</p>}
               </div>
 
-              <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:opacity-95">
+              <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:opacity-95" disabled={isLoading}>
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 Submit Brand Profile
               </Button>
             </form>

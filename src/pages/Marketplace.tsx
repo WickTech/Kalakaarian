@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, ChevronDown } from "lucide-react";
-import { allInfluencers } from "@/lib/data";
+import { ArrowLeft, ChevronDown, Loader2 } from "lucide-react";
+import { influencersAPI, InfluencerFilters } from "@/api/influencers";
 import { Influencer } from "@/lib/store";
 import { InfluencerCard } from "@/components/InfluencerCard";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -31,20 +31,44 @@ export default function Marketplace({ dark, toggleTheme, cartCount, onCartOpen, 
   const [genre, setGenre] = useState("All");
   const [sort, setSort] = useState<"high" | "low">("high");
   const [page, setPage] = useState(1);
+  const [influencers, setInfluencers] = useState<Influencer[]>([]);
+  const [total, setTotal] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filtered = useMemo(() => {
-    let result = allInfluencers.filter((i) => i.platform === platform);
-    if (tier !== "all") result = result.filter((i) => i.tier === tier);
-    if (city !== "All") result = result.filter((i) => i.city === city);
-    if (genre !== "All") result = result.filter((i) => i.genre === genre);
-    result.sort((a, b) =>
-      sort === "high" ? b.followers - a.followers : a.followers - b.followers
-    );
-    return result;
-  }, [platform, tier, city, genre, sort]);
+  useEffect(() => {
+    const fetch = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const filters: InfluencerFilters = {};
+        if (tier !== "all") filters.tier = tier;
+        if (city !== "All") filters.city = city;
+        if (genre !== "All") filters.genre = genre;
+        
+        const response = await influencersAPI.getAll(filters, page, PER_PAGE);
+        let result = response.influencers.filter((i) => i.platform === platform);
+        result.sort((a, b) =>
+          sort === "high" ? b.followers - a.followers : a.followers - b.followers
+        );
+        setInfluencers(result);
+        setTotal(response.total);
+      } catch (err) {
+        setError("Failed to load influencers. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-  const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+    fetch();
+  }, [platform, tier, city, genre, page, sort]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [platform, tier, city, genre]);
+
+  const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+  const paginated = influencers;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -104,13 +128,21 @@ export default function Marketplace({ dark, toggleTheme, cartCount, onCartOpen, 
           onChange={(v) => setSort(v as "high" | "low")}
         />
         <span className="ml-auto font-mono text-[10px] text-muted-foreground uppercase">
-          {filtered.length} ASSETS FOUND
+          {isLoading ? "LOADING..." : `${total} ASSETS FOUND`}
         </span>
       </div>
 
       {/* Grid */}
       <div className="flex-1 p-4">
-        {paginated.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="w-8 h-8 animate-spin text-terminal" />
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center h-64 gap-4">
+            <p className="font-mono text-sm text-destructive">{error}</p>
+          </div>
+        ) : paginated.length === 0 ? (
           <div className="flex items-center justify-center h-64">
             <p className="font-mono text-sm text-muted-foreground">NO ASSETS MATCH CURRENT FILTERS</p>
           </div>
