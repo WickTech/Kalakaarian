@@ -163,11 +163,29 @@ Brand -> Cart -> Review -> Initiate Payment -> Escrow Service
   _id: ObjectId,
   campaignId: ObjectId (ref: Campaigns),
   influencerId: ObjectId (ref: Users),
-  pitch: String,
-  proposedRate: Number,
-  proposedPosts: Number,
+  message: String,
+  price: Number,
   status: "pending" | "accepted" | "rejected",
-  createdAt: Date
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Cart Collection
+```javascript
+{
+  _id: ObjectId,
+  userId: ObjectId (ref: Users),
+  items: [
+    {
+      influencerId: ObjectId (ref: Users),
+      price: Number,
+      addedAt: Date
+    }
+  ],
+  total: Number,
+  createdAt: Date,
+  updatedAt: Date
 }
 ```
 
@@ -195,12 +213,33 @@ Brand -> Cart -> Review -> Initiate Payment -> Escrow Service
 - Audit logging for sensitive operations
 
 ### Best Practices Implemented
-- [ ] Input sanitization
-- [ ] Output encoding
-- [ ] CSRF protection
-- [ ] Content Security Policy
-- [ ] Secure cookie settings
-- [ ] File upload validation
+- [x] Input sanitization
+- [x] Output encoding
+- [x] CSRF protection
+- [x] Content Security Policy
+- [x] Secure cookie settings
+- [x] File upload validation
+
+### Security Headers
+The application uses Helmet.js with the following headers:
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: DENY`
+- `X-XSS-Protection: 1; mode=block`
+- `Strict-Transport-Security: max-age=31536000`
+- `Content-Security-Policy` (configurable)
+
+### Data Protection
+- Environment variables for all secrets
+- HTTPS enforcement in production
+- Sensitive data encryption at rest (MongoDB encryption)
+- Audit logging for sensitive operations
+
+### API Security Best Practices
+1. **Input Validation**: All inputs validated with express-validator
+2. **Rate Limiting**: Applied per-endpoint based on sensitivity
+3. **CORS**: Configured whitelist of allowed origins
+4. **JWT**: Short-lived tokens (24h) with secure storage
+5. **Password**: bcrypt hashing with 10 salt rounds
 
 ---
 
