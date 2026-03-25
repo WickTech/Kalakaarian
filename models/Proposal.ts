@@ -25,4 +25,8 @@ const ProposalSchema = new Schema<IProposal>(
   { timestamps: true }
 );
 
+ProposalSchema.index({ campaignId: 1 });
+ProposalSchema.index({ influencerId: 1 });
+ProposalSchema.index({ status: 1 });
+
 export const Proposal = mongoose.model<IProposal>('Proposal', ProposalSchema);

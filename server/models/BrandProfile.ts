@@ -1,18 +1,29 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import { IBrandProfile } from '../types';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
-interface IBrandProfileDocument extends IBrandProfile, Document {}
+export interface IBrandProfile extends Document {
+  userId: Types.ObjectId;
+  companyName?: string;
+  industry?: string;
+  companySize?: string;
+  website?: string;
+  bio?: string;
+  isVerified?: boolean;
+}
 
-const brandProfileSchema = new Schema(
+const BrandProfileSchema = new Schema<IBrandProfile>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    companyName: { type: String, required: true },
-    industry: { type: String, required: true },
-    website: String,
-    logo: String,
-    description: { type: String, default: '' },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', unique: true, required: true },
+    companyName: { type: String },
+    industry: { type: String },
+    companySize: { type: String },
+    website: { type: String },
+    bio: { type: String },
+    isVerified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
-export default mongoose.model<IBrandProfileDocument>('BrandProfile', brandProfileSchema);
+BrandProfileSchema.index({ companyName: 1 });
+BrandProfileSchema.index({ industry: 1 });
+
+export const BrandProfile = mongoose.model<IBrandProfile>('BrandProfile', BrandProfileSchema);

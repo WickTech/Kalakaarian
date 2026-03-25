@@ -1,23 +1,29 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import { ITransaction } from '../types';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
-interface ITransactionDocument extends ITransaction, Document {}
+export interface ITransaction extends Document {
+  campaignId: Types.ObjectId;
+  amount?: number;
+  status?: 'HELD' | 'RELEASED' | 'REFUNDED';
+  paymentIntent?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-const transactionSchema = new Schema(
+const TransactionSchema = new Schema<ITransaction>(
   {
-    brandId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    influencerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     campaignId: { type: Schema.Types.ObjectId, ref: 'Campaign', required: true },
-    amount: { type: Number, required: true },
+    amount: { type: Number },
     status: {
       type: String,
-      enum: ['pending', 'completed', 'failed', 'refunded'],
-      default: 'pending',
+      enum: ['HELD', 'RELEASED', 'REFUNDED'],
+      default: 'HELD',
     },
-    paymentMethod: String,
-    transactionId: String,
+    paymentIntent: { type: String },
   },
   { timestamps: true }
 );
 
-export default mongoose.model<ITransactionDocument>('Transaction', transactionSchema);
+TransactionSchema.index({ campaignId: 1 });
+TransactionSchema.index({ status: 1 });
+
+export const Transaction = mongoose.model<ITransaction>('Transaction', TransactionSchema);

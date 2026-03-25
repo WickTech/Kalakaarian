@@ -47,4 +47,9 @@ const CampaignSchema = new Schema<ICampaign>(
   { timestamps: true }
 );
 
+CampaignSchema.index({ brandId: 1 });
+CampaignSchema.index({ status: 1 });
+CampaignSchema.index({ deadline: 1 });
+CampaignSchema.index({ budget: 1 });
+
 export const Campaign = mongoose.model<ICampaign>('Campaign', CampaignSchema);

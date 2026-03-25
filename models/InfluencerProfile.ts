@@ -95,4 +95,18 @@ const InfluencerProfileSchema = new Schema<IInfluencerProfile>(
   { timestamps: true }
 );
 
+InfluencerProfileSchema.virtual('totalFollowers').get(function() {
+  return (this.followers?.instagram || 0) + (this.followers?.youtube || 0);
+});
+
+InfluencerProfileSchema.set('toJSON', { virtuals: true });
+InfluencerProfileSchema.set('toObject', { virtuals: true });
+
+InfluencerProfileSchema.index({ tier: 1 });
+InfluencerProfileSchema.index({ platform: 1 });
+InfluencerProfileSchema.index({ niche: 1 });
+InfluencerProfileSchema.index({ price: 1 });
+InfluencerProfileSchema.index({ 'followers.instagram': -1 });
+InfluencerProfileSchema.index({ 'followers.youtube': -1 });
+
 export const InfluencerProfile = mongoose.model<IInfluencerProfile>('InfluencerProfile', InfluencerProfileSchema);

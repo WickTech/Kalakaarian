@@ -1,25 +1,55 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import { ICampaign } from '../types';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
-interface ICampaignDocument extends ICampaign, Document {}
+export interface IRequirements {
+  minFollowers?: number;
+  maxBudget?: number;
+  genres?: string[];
+  platforms?: string[];
+}
 
-const campaignSchema = new Schema(
+export interface ICampaign extends Document {
+  brandId: Types.ObjectId;
+  title: string;
+  description?: string;
+  budget?: number;
+  deadline?: Date;
+  status?: 'DRAFT' | 'OPEN' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  deliverables?: string[];
+  requirements?: IRequirements;
+  proposalCount?: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const RequirementsSchema = new Schema<IRequirements>({
+  minFollowers: { type: Number },
+  maxBudget: { type: Number },
+  genres: [{ type: String }],
+  platforms: [{ type: String }],
+});
+
+const CampaignSchema = new Schema<ICampaign>(
   {
-    brandId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    brandId: { type: Schema.Types.ObjectId, ref: 'BrandProfile', required: true },
     title: { type: String, required: true },
-    description: { type: String, required: true },
-    genre: [{ type: String }],
-    platform: [{ type: String }],
-    budget: { type: Number, required: true },
-    deadline: { type: Date, required: true },
-    requirements: { type: String, default: '' },
+    description: { type: String },
+    budget: { type: Number },
+    deadline: { type: Date },
     status: {
       type: String,
-      enum: ['draft', 'open', 'in_progress', 'completed', 'cancelled'],
-      default: 'draft',
+      enum: ['DRAFT', 'OPEN', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'],
+      default: 'DRAFT',
     },
+    deliverables: [{ type: String }],
+    requirements: { type: RequirementsSchema },
+    proposalCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
 
-export default mongoose.model<ICampaignDocument>('Campaign', campaignSchema);
+CampaignSchema.index({ brandId: 1 });
+CampaignSchema.index({ status: 1 });
+CampaignSchema.index({ deadline: 1 });
+CampaignSchema.index({ budget: 1 });
+
+export const Campaign = mongoose.model<ICampaign>('Campaign', CampaignSchema);

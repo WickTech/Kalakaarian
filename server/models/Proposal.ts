@@ -1,21 +1,32 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import { IProposal } from '../types';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
-interface IProposalDocument extends IProposal, Document {}
+export interface IProposal extends Document {
+  campaignId: Types.ObjectId;
+  influencerId: Types.ObjectId;
+  bidAmount?: number;
+  message?: string;
+  status?: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'WITHDRAWN';
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-const proposalSchema = new Schema(
+const ProposalSchema = new Schema<IProposal>(
   {
     campaignId: { type: Schema.Types.ObjectId, ref: 'Campaign', required: true },
-    influencerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    message: { type: String, required: true },
-    price: { type: Number, required: true },
+    influencerId: { type: Schema.Types.ObjectId, ref: 'InfluencerProfile', required: true },
+    bidAmount: { type: Number },
+    message: { type: String },
     status: {
       type: String,
-      enum: ['pending', 'accepted', 'rejected', 'negotiating'],
-      default: 'pending',
+      enum: ['PENDING', 'ACCEPTED', 'REJECTED', 'WITHDRAWN'],
+      default: 'PENDING',
     },
   },
   { timestamps: true }
 );
 
-export default mongoose.model<IProposalDocument>('Proposal', proposalSchema);
+ProposalSchema.index({ campaignId: 1 });
+ProposalSchema.index({ influencerId: 1 });
+ProposalSchema.index({ status: 1 });
+
+export const Proposal = mongoose.model<IProposal>('Proposal', ProposalSchema);

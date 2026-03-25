@@ -23,4 +23,7 @@ const TransactionSchema = new Schema<ITransaction>(
   { timestamps: true }
 );
 
+TransactionSchema.index({ campaignId: 1 });
+TransactionSchema.index({ status: 1 });
+
 export const Transaction = mongoose.model<ITransaction>('Transaction', TransactionSchema);

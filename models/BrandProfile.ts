@@ -23,4 +23,7 @@ const BrandProfileSchema = new Schema<IBrandProfile>(
   { timestamps: true }
 );
 
+BrandProfileSchema.index({ companyName: 1 });
+BrandProfileSchema.index({ industry: 1 });
+
 export const BrandProfile = mongoose.model<IBrandProfile>('BrandProfile', BrandProfileSchema);
