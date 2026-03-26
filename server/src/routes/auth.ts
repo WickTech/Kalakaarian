@@ -31,7 +31,8 @@ router.post(
 router.post(
   '/google',
   [
-    body('code').notEmpty().withMessage('Authorization code is required'),
+    body('code').optional(),
+    body('jwtToken').optional(),
   ],
   validate,
   googleLogin
