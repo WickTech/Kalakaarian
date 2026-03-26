@@ -1,172 +1,206 @@
 # Kalakariaan Project Context
 
-**Last Updated:** 2026-03-25
+**Last Updated:** 2026-03-26
 
 ## Project Overview
 
 **Kalakariaan** is a D2C Influencer Marketplace connecting brands with micro-influencers for authentic marketing campaigns.
+
+## User Flow
+
+```
+Landing Page (Product Info)
+    ↓
+Login/Register (Google OAuth)
+    ↓
+Role Selection (Brand / Influencer)
+    ↓
+┌────────────────────┬────────────────────┐
+│      BRAND         │    INFLUENCER      │
+├────────────────────┼────────────────────┤
+│ • Browse Influencers│ • View Campaigns   │
+│ • Create Campaign  │ • Submit Proposal  │
+│ • Manage Campaigns │ • Dashboard       │
+└────────────────────┴────────────────────┘
+```
 
 ## Tech Stack
 
 - **Frontend:** React 18 + TypeScript + Vite + Tailwind CSS
 - **Backend:** Node.js + Express + TypeScript
 - **Database:** MongoDB + Mongoose (Railway)
-- **Auth:** JWT + bcrypt
+- **Auth:** Google OAuth 2.0 + JWT
 - **Deployment:** Vercel (frontend) + Railway (backend)
+
+## Project Structure (Monorepo)
+
+```
+/kalakaarian
+├── client/              # Frontend (Vite + React)
+│   └── src/
+│       ├── pages/       # All page components
+│       ├── components/  # Reusable components
+│       ├── hooks/       # Custom hooks
+│       └── lib/         # Utilities & API client
+├── server/              # Backend (Express)
+│   └── src/
+│       ├── controllers/ # Route handlers
+│       ├── models/      # Mongoose models
+│       ├── routes/      # API routes
+│       └── middleware/ # Auth, validation
+├── packages/
+│   └── models/          # Shared TypeScript types
+└── docs/               # Documentation
+```
 
 ## Current Status
 
 | Component | Status |
 |-----------|--------|
-| Frontend | 🟡 Partial - Main pages done, dashboards missing |
-| Backend | 🟡 Partial - proposalController not implemented |
-| Database | ✅ Models ready, connection working |
-| Testing | 🔴 Almost empty |
-| Docs | ✅ Complete |
+| Frontend | 🟡 Landing page + Auth UI, needs Google OAuth |
+| Backend | 🟡 Basic auth, needs Google OAuth |
+| Database | ✅ Models ready |
+| Testing | 🔴 Needs setup |
+| Docs | 🟡 Needs update |
 
 ---
 
-## Next Steps by Agent
+## Agent Responsibilities
 
 ### 🤖 Agent 1: FRONTEND
 
-**Priority 1:**
-1. Fix AuthProvider - already added to main.tsx
-2. Complete BrandCampaignPage (currently stub)
-3. Build Brand Dashboard page (view/manage campaigns, proposals)
-4. Build Influencer Dashboard page (view my proposals, stats)
+**Location:** `/client`
 
-**Priority 2:**
-5. Connect proposal API (frontend API client missing)
-6. Add Profile/Edit Profile pages
-7. Campaign Detail page
+**Responsibilities:**
+1. Landing Page redesign with product info
+2. Google OAuth login integration (Google Sign-In)
+3. Role selection flow after login
+4. Brand dashboard (browse influencers, create campaign)
+5. Influencer dashboard (view campaigns, submit proposals)
+6. Marketplace for brands to browse influencers
 
-**Priority 3:**
-8. Messages/Chat UI
-9. Notifications UI
+**Files to modify:**
+- `client/src/pages/Landing.tsx`
+- `client/src/pages/LoginPage.tsx`
+- `client/src/pages/RoleSelectPage.tsx`
+- `client/src/pages/BrandDashboard.tsx`
+- `client/src/pages/InfluencerDashboard.tsx`
+- `client/src/hooks/useAuth.tsx`
 
 ---
 
 ### 🤖 Agent 2: BACKEND
 
-**Priority 1:**
-1. **Implement proposalController** - All endpoints return 501
-   - getProposals
-   - getProposalById
-   - createProposal
-   - updateProposal
-   - deleteProposal
-   - respondToProposal
+**Location:** `/server`
 
-**Priority 2:**
-2. Add messaging endpoints (POST /api/messages)
-3. Add notification endpoints (GET /api/notifications)
-4. Add analytics endpoints for campaign performance
+**Responsibilities:**
+1. Google OAuth 2.0 implementation
+2. JWT token generation for Google users
+3. Role-based API endpoints
+4. Campaign CRUD for brands
+5. Proposal endpoints for influencers
+6. Influencer search/filter APIs
 
-**Priority 3:**
-5. Email notifications
-6. WebSocket for real-time features
+**Files to modify:**
+- `server/src/routes/auth.ts`
+- `server/src/controllers/authController.ts`
+- `server/src/controllers/campaignController.ts`
+- `server/src/controllers/proposalController.ts`
+- `server/src/controllers/influencerController.ts`
 
 ---
 
 ### 🤖 Agent 3: DATABASE
 
-**Priority 1:**
-1. Create seed data script for testing
-   - Sample users (brands + influencers)
-   - Sample campaigns
-   - Sample proposals
+**Location:** `/server/src/models`
 
-**Priority 2:**
-2. Add database indexes for performance
-3. Create migration scripts (if schema changes needed)
+**Responsibilities:**
+1. User model with Google ID
+2. BrandProfile and InfluencerProfile models
+3. Campaign model with status
+4. Proposal model
+5. Database indexes for performance
+6. Seed data for testing
 
-**Priority 3:**
-4. Setup MongoDB Atlas backup (if not using Railway managed)
-
----
-
-### 🤖 Agent 4: TESTING
-
-**Priority 1:**
-1. Write unit tests for authController
-2. Write unit tests for campaignController
-3. Write unit tests for influencerController
-
-**Priority 2:**
-4. Write unit tests for frontend hooks (useAuth, useCart)
-5. Write component tests for key UI components
-
-**Priority 3:**
-6. Setup E2E tests with Playwright
-7. Add test coverage reporting
+**Files to modify:**
+- `server/src/models/User.ts`
+- `server/src/models/BrandProfile.ts`
+- `server/src/models/InfluencerProfile.ts`
+- `server/src/models/Campaign.ts`
+- `server/src/models/Proposal.ts`
 
 ---
 
-### 🤖 Agent 5: DOCUMENTATION
+### 🤖 Agent 4: INTEGRATIONS & DOCS
 
-**Priority 1:**
-1. Update API.md if new endpoints added
-2. Update README with live URLs
+**Location:** Root + `/docs`
 
-**Priority 2:**
-3. Add setup guide for local development
-4. Add CONTRIBUTING.md with coding standards
+**Responsibilities:**
+1. Google Cloud Console setup guide
+2. Environment variables documentation
+3. API documentation (update)
+4. README with setup instructions
+5. OAuth callback handling
 
-**Priority 3:**
-5. Create video tutorial (optional)
-
----
-
-## Quick Wins (Can be done in 1 session)
-
-| Task | Agent | Effort |
-|------|-------|--------|
-| Implement proposalController | Backend | High |
-| Build Brand Dashboard | Frontend | Medium |
-| Build Influencer Dashboard | Frontend | Medium |
-| Seed data script | Database | Low |
-| Auth tests | Testing | Medium |
+**Files to modify:**
+- `.env.example`
+- `docs/API.md`
+- `README.md`
 
 ---
 
-## Key Files
+### 🤖 Agent 5: TESTING & DEPLOYMENT
 
-- Frontend entry: `src/main.tsx`
-- Backend entry: `server/app.ts`
-- Database config: `server/config/database.ts`
-- Auth middleware: `server/middleware/auth.ts`
-- Context: `CONTEXT.md`
+**Location:** Root
 
-## API Endpoints (Working)
+**Responsibilities:**
+1. Set up Vitest for unit tests
+2. Set up Playwright for E2E tests
+3. GitHub Actions CI/CD workflow
+4. Vercel deployment config
+5. Railway deployment config
 
-### Auth ✅
+**Files to modify:**
+- `vitest.config.ts`
+- `playwright.config.ts`
+- `.github/workflows/`
+- `vercel.json`
+
+---
+
+## API Endpoints (To Implement)
+
+### Auth 🔄 (Adding Google OAuth)
+- POST /api/auth/google - Google OAuth callback
 - POST /api/auth/register
 - POST /api/auth/login
 - GET /api/auth/profile
-- PUT /api/auth/profile
 
-### Influencers ✅
-- GET /api/influencers
-- GET /api/influencers/:id
-- GET /api/influencers/search
+### User Profiles
+- GET /api/profile - Get current user profile
+- PUT /api/profile - Update profile
 
-### Campaigns ✅
-- GET /api/campaigns
-- POST /api/campaigns
+### Campaigns (Brand only)
+- GET /api/campaigns - List brand's campaigns
+- POST /api/campaigns - Create campaign
 - GET /api/campaigns/:id
 - PUT /api/campaigns/:id
 - DELETE /api/campaigns/:id
-- POST /api/campaigns/:id/proposals
 
-### Cart ✅
-- GET /api/cart
-- POST /api/cart/add
-- DELETE /api/cart/remove/:id
-- DELETE /api/cart/clear
+### Campaigns (Public - Influencer)
+- GET /api/campaigns/open - List open campaigns
 
-### Proposals ❌ (NOT IMPLEMENTED)
-- All endpoints return 501
+### Proposals (Influencer)
+- POST /api/proposals - Submit proposal
+- GET /api/proposals/my - My proposals
+- PUT /api/proposals/:id - Update proposal
+
+### Proposals (Brand)
+- GET /api/campaigns/:id/proposals - Proposals for campaign
+- PUT /api/proposals/:id/respond - Accept/reject proposal
+
+### Influencers
+- GET /api/influencers - Search/filter influencers
 
 ---
 
@@ -175,7 +209,24 @@
 **Backend (Railway):**
 - MONGODB_URI
 - JWT_SECRET
+- GOOGLE_CLIENT_ID
+- GOOGLE_CLIENT_SECRET
+- GOOGLE_CALLBACK_URL
 - PORT
 
 **Frontend (Vercel):**
 - VITE_API_URL (points to Railway backend)
+- VITE_GOOGLE_CLIENT_ID
+
+---
+
+## Key GitHub Repo
+
+**URL:** https://github.com/WickTech/Kalakaarian
+
+**Local Path:** `/home/rishi/github/kalakaarian`
+
+**Deployment:**
+- Frontend: Vercel
+- Backend: Railway
+- Database: MongoDB (Railway)

@@ -1,10 +1,31 @@
+import { useEffect } from "react";
 import { Building2, Star } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function RoleSelectPage() {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user) {
+      if (user.role === "brand") {
+        navigate("/brand/dashboard");
+      } else if (user.role === "influencer") {
+        navigate("/influencer/dashboard");
+      }
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-700 via-fuchsia-600 to-pink-500">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+      </main>
+    );
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-700 via-fuchsia-600 to-pink-500 px-4 py-12">
@@ -27,7 +48,10 @@ export default function RoleSelectPage() {
               <CardDescription>List your profile and get discovered by top brands.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-95" onClick={() => navigate("/influencer-register")}>
+              <Button 
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-95" 
+                onClick={() => navigate("/influencer-register")}
+              >
                 Join as Influencer
               </Button>
             </CardContent>
@@ -42,7 +66,10 @@ export default function RoleSelectPage() {
               <CardDescription>Find the perfect influencers for your next campaign.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:opacity-95" onClick={() => navigate("/brand-register")}>
+              <Button 
+                className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:opacity-95" 
+                onClick={() => navigate("/brand-register")}
+              >
                 Start as Brand
               </Button>
             </CardContent>

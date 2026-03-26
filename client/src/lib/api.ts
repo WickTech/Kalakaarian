@@ -224,6 +224,13 @@ export const api = {
       body: JSON.stringify(data),
     });
   },
+
+  googleLogin: async (googleToken: string): Promise<LoginResponse> => {
+    return request<LoginResponse>("/api/auth/google", {
+      method: "POST",
+      body: JSON.stringify({ token: googleToken }),
+    });
+  },
 };
 
 export { ApiError };

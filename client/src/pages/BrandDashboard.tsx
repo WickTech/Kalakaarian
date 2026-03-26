@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Plus, TrendingUp, CheckCircle, Clock, FileText } from "lucide-react";
+import { ArrowLeft, Plus, TrendingUp, CheckCircle, Clock, FileText, Users, Search } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -87,12 +87,20 @@ export default function BrandDashboard() {
             <h1 className="text-3xl font-bold text-white">Brand Dashboard</h1>
             <p className="text-white/80">Welcome back, {user?.brandName || user?.name || "Brand"}</p>
           </div>
-          <Button asChild className="bg-white text-cyan-700 hover:bg-white/90">
-            <Link to="/brand-campaign">
-              <Plus className="h-4 w-4" />
-              New Campaign
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild variant="outline" className="border-white text-white hover:bg-white/15">
+              <Link to="/marketplace">
+                <Search className="h-4 w-4" />
+                Browse Influencers
+              </Link>
+            </Button>
+            <Button asChild className="bg-white text-cyan-700 hover:bg-white/90">
+              <Link to="/brand-campaign">
+                <Plus className="h-4 w-4" />
+                New Campaign
+              </Link>
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
