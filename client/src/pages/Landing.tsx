@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Button } from "@/components/ui/button";
 
 interface LandingProps {
   dark: boolean;
@@ -57,6 +59,12 @@ export default function Landing({ dark, toggleTheme, cartCount, onCartOpen }: La
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle dark={dark} toggle={toggleTheme} />
+          <Link to="/login">
+            <Button variant="outline" size="sm">Login</Button>
+          </Link>
+          <Link to="/role-select">
+            <Button size="sm">Sign Up</Button>
+          </Link>
           <button onClick={onCartOpen} className="border border-border p-2 hover:border-terminal transition-colors relative">
             <span className="font-mono text-xs">CART</span>
             {cartCount > 0 && (
