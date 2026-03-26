@@ -51,6 +51,41 @@ Register a new user (brand or influencer).
 
 ---
 
+### POST /api/auth/google
+
+Authenticate user via Google OAuth 2.0.
+
+**Request:**
+```json
+{
+  "code": "authorization-code-from-google"
+}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": "60d5ec49f1b2c8b1f4e3e1e1",
+      "email": "user@gmail.com",
+      "name": "John Doe",
+      "role": "brand"
+    },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+**Error Codes:**
+| Code | Message |
+|------|---------|
+| 400 | Invalid authorization code |
+| 500 | Server error |
+
+---
+
 ### POST /api/auth/login
 
 Authenticate user and receive JWT.
@@ -285,7 +320,7 @@ Update influencer profile.
 
 ### GET /api/campaigns
 
-List campaigns (filtered by user role).
+List campaigns (brands see their own, influencers see open).
 
 **Headers:** `Authorization: Bearer <token>`
 
@@ -315,6 +350,49 @@ List campaigns (filtered by user role).
         "budget": 5000,
         "status": "open",
         "proposalsCount": 5
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 45
+    }
+  }
+}
+```
+
+---
+
+### GET /api/campaigns/open
+
+List all open campaigns for influencers (public endpoint).
+
+**Query Parameters:**
+| Param | Type | Description |
+|-------|------|-------------|
+| niche | string | Filter by niche |
+| minBudget | number | Minimum budget |
+| maxBudget | number | Maximum budget |
+| page | number | Page number |
+| limit | number | Items per page |
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "campaigns": [
+      {
+        "id": "60d5ec49f1b2c8b1f4e3e1e3",
+        "title": "Summer Collection Launch",
+        "brand": {
+          "id": "60d5ec49f1b2c8b1f4e3e1e1",
+          "name": "StyleCo"
+        },
+        "description": "Looking for influencers...",
+        "budget": 5000,
+        "deadline": "2024-06-30",
+        "status": "open"
       }
     ],
     "pagination": {
@@ -511,6 +589,48 @@ Get proposals for a campaign (brand owner only).
         "status": "pending"
       }
     ]
+  }
+}
+```
+
+---
+
+### GET /api/proposals/my
+
+Get current user's (influencer's) submitted proposals.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Query Parameters:**
+| Param | Type | Description |
+|-------|------|-------------|
+| status | string | pending, accepted, rejected |
+| page | number | Page number |
+| limit | number | Items per page |
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "proposals": [
+      {
+        "id": "60d5ec49f1b2c8b1f4e3e1e4",
+        "campaign": {
+          "id": "60d5ec49f1b2c8b1f4e3e1e3",
+          "title": "Summer Collection Launch"
+        },
+        "message": "I'd love to collaborate...",
+        "price": 500,
+        "status": "pending",
+        "createdAt": "2024-01-15T10:30:00Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 5
+    }
   }
 }
 ```

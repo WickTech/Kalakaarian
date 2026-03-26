@@ -48,6 +48,14 @@ kalakaarian/
 
 ## Quick Start
 
+### Prerequisites
+
+| Tool | Version |
+|------|---------|
+| Node.js | 18+ |
+| npm | 9+ |
+| MongoDB | 6+ (local) or Atlas |
+
 ### 1. Clone & Install
 
 ```bash
@@ -61,6 +69,21 @@ npm install
 ```bash
 cp .env.example .env
 # Edit .env with your values
+```
+
+Required variables:
+
+```env
+# Backend
+MONGODB_URI=mongodb://localhost:27017/kalakariaan
+JWT_SECRET=your-secret-key-min-32-chars
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
+
+# Frontend
+VITE_API_URL=http://localhost:5000/api
+VITE_GOOGLE_CLIENT_ID=your-google-client-id
 ```
 
 ### 3. Start Development
@@ -87,11 +110,20 @@ npm run dev
 | Backend | http://localhost:5000 |
 | MongoDB | localhost:27017 |
 
+### 5. Google OAuth Setup
+
+Follow the [Google OAuth Setup Guide](./docs/GOOGLE_OAUTH_SETUP.md) to:
+1. Create Google Cloud project
+2. Enable OAuth API
+3. Get credentials
+4. Configure redirect URIs
+
 ## Deployment Guide
 
 1. **[MongoDB Atlas Setup](./docs/MONGODB.md)** - Create free database
 2. **[Railway Backend Deploy](./docs/RAILWAY.md)** - Deploy Express API
 3. **[Vercel Frontend Deploy](./docs/VERCEL.md)** - Deploy React app
+4. **[Google OAuth Setup](./docs/GOOGLE_OAUTH_SETUP.md)** - Configure Google Login
 
 ## Features
 
@@ -116,21 +148,32 @@ npm run dev
 |--------|----------|-------------|
 | POST | `/api/auth/register` | Register user |
 | POST | `/api/auth/login` | Login |
+| POST | `/api/auth/google` | Google OAuth |
 | GET | `/api/auth/profile` | Get user profile |
+
+### Campaigns
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/campaigns` | List campaigns |
+| GET | `/api/campaigns/open` | List open campaigns (public) |
+| POST | `/api/campaigns` | Create campaign |
+| GET | `/api/campaigns/:id` | Get campaign |
+| PUT | `/api/campaigns/:id` | Update campaign |
+| DELETE | `/api/campaigns/:id` | Delete campaign |
+
+### Proposals
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/campaigns/:id/proposals` | Submit proposal |
+| GET | `/api/campaigns/:id/proposals` | Get campaign proposals |
+| GET | `/api/proposals/my` | My proposals |
+| PUT | `/api/proposals/:id/status` | Update proposal status |
 
 ### Influencers
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/influencers` | List influencers |
 | GET | `/api/influencers/:id` | Get influencer |
-
-### Campaigns
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/campaigns` | List campaigns |
-| POST | `/api/campaigns` | Create campaign |
-| GET | `/api/campaigns/:id` | Get campaign |
-| PUT | `/api/campaigns/:id` | Update campaign |
 
 ### Cart
 | Method | Endpoint | Description |
