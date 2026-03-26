@@ -1,5 +1,5 @@
 import { api } from "./axios";
-import { User } from "@/contexts/AuthContext";
+import { User } from "@/lib/api";
 
 export interface LoginResponse {
   user: User;
