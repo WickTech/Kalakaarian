@@ -171,18 +171,15 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
     }
 
     if (!user) {
-      if (!role) {
-        res.status(400).json({ message: 'Role is required for new users' });
-        return;
-      }
-
+      // For new users, create with default role - they can select role after login
       user = await User.create({
         email: googleUser.email,
         name: googleUser.name,
         googleId: googleUser.id,
-        role,
+        role: role || 'brand', // Default to brand, can be changed later
       });
 
+      // Create profile only if role is specified
       if (role === 'brand') {
         await BrandProfile.create({
           userId: user._id,
