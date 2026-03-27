@@ -1,4 +1,4 @@
-import { Sparkles, Handshake, Megaphone } from "lucide-react";
+import { Sparkles, Handshake, Megaphone, Zap, Users, Target, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -23,6 +23,33 @@ const features = [
     description: "Connect, negotiate, and launch high-impact campaigns together.",
     icon: Handshake,
     tone: "from-orange-400 to-yellow-400",
+  },
+];
+
+const whyKalakaarian = [
+  {
+    title: "Creator Connectivity",
+    description: "Connect with countless creators in a single click, with zero margins.",
+    icon: Users,
+    tone: "from-purple-500 to-pink-500",
+  },
+  {
+    title: "Fast Campaign Delivery",
+    description: "Get your campaign ready within 24 hours with the lowest platform fees.",
+    icon: Zap,
+    tone: "from-yellow-400 to-orange-500",
+  },
+  {
+    title: "Track & Navigate",
+    description: "Track your payments and navigate your campaigns seamlessly.",
+    icon: TrendingUp,
+    tone: "from-green-500 to-emerald-500",
+  },
+  {
+    title: "AI Profile Suggestions",
+    description: "Use AI to find creators with 100% compatibility for your target audience.",
+    icon: Target,
+    tone: "from-blue-500 to-cyan-500",
   },
 ];
 
@@ -74,12 +101,22 @@ export default function LandingPage() {
       </section>
 
       <section className="bg-white px-4 py-16 text-slate-900 sm:px-6">
-        <div className="mx-auto w-full max-w-4xl text-center">
-          <h2 className="mb-4 text-2xl font-extrabold sm:text-3xl">Why Kalakaarian?</h2>
-          <p className="mx-auto max-w-2xl text-base text-slate-600">
-            We bridge the gap between brands and micro-influencers, creating authentic connections that drive real results. 
-            Our platform makes it easy to discover, collaborate, and scale campaigns together.
-          </p>
+        <div className="mx-auto w-full max-w-6xl">
+          <h2 className="mb-8 text-center text-2xl font-extrabold sm:text-3xl">Why Kalakaarian?</h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {whyKalakaarian.map(({ title, description, icon: Icon, tone }) => (
+              <Card key={title} className="border-0 bg-slate-50 shadow-lg">
+                <div className={`h-1 w-full bg-gradient-to-r ${tone}`} />
+                <CardHeader>
+                  <div className={`mb-2 inline-flex h-10 w-10 items-center justify-center rounded-md bg-gradient-to-r ${tone} text-white`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <CardTitle className="text-base">{title}</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-slate-600">{description}</CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 
