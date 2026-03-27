@@ -12,11 +12,11 @@ interface LandingProps {
   onCartOpen: () => void;
 }
 
-const features = [
+const whyKalakaarian = [
   {
     icon: Users,
     title: "Creator Connectivity",
-    description: "Connect with N number of creators in a single click, with zero margins.",
+    description: "Connect with countless creators in a single click, with zero margins.",
   },
   {
     icon: Target,
@@ -26,12 +26,12 @@ const features = [
   {
     icon: TrendingUp,
     title: "Track & Navigate",
-    description: "Track your payments and navigate your campaigns with ease.",
+    description: "Track your payments and navigate your campaigns seamlessly.",
   },
   {
     icon: Sparkles,
     title: "AI Profile Suggestions",
-    description: "Use AI to get 100% compatible creators matched to your target audience.",
+    description: "Use AI to find creators with 100% compatibility for your target audience.",
   },
 ];
 
@@ -165,6 +165,29 @@ export default function Landing({ dark, toggleTheme, cartCount, onCartOpen }: La
                 </h3>
                 <p className="text-sm text-muted-foreground">{tier.desc}</p>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Kalakaarian Section */}
+      <section className="py-16 px-4 bg-muted/30">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold font-oswald tracking-tight mb-4">Why Kalakaarian?</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {whyKalakaarian.map((feature) => (
+              <Card key={feature.title} className="bg-card border-border">
+                <CardContent className="pt-6">
+                  <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
+                    <feature.icon className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <h3 className="font-bold mb-2">{feature.title}</h3>
+                  <p className="text-sm text-muted-foreground">{feature.description}</p>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
