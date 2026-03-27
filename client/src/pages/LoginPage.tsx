@@ -122,6 +122,23 @@ export default function LoginPage() {
             <CardDescription>Sign in to continue to your dashboard</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="flex flex-col items-center justify-center space-y-4 pt-2">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError("Google login failed")}
+                useOneTap
+                theme="filled_blue"
+                shape="rectangular"
+                width="100%"
+              />
+            </div>
+
+            <div className="relative flex items-center py-2">
+              <div className="flex-grow border-t border-muted" />
+              <span className="mx-4 flex-shrink text-xs uppercase text-muted-foreground">Or continue with</span>
+              <div className="flex-grow border-t border-muted" />
+            </div>
+
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>

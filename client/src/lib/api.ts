@@ -261,8 +261,8 @@ export const api = {
   },
 
   respondToProposal: async (proposalId: string, status: "accepted" | "rejected"): Promise<Proposal> => {
-    return request<Proposal>(`/api/proposals/${proposalId}/status`, {
-      method: "PUT",
+    return request<Proposal>(`/api/proposals/${proposalId}/respond`, {
+      method: "POST",
       body: JSON.stringify({ status }),
     });
   },
