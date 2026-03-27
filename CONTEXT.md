@@ -1,5 +1,4 @@
 # Kalakariaan Project Context
-
 **Last Updated:** 2026-03-26
 
 ---
