@@ -44,8 +44,11 @@ export default function LoginPage() {
   };
 
   const handleRoleSelect = (selectedRole: "brand" | "influencer") => {
-    setRole(selectedRole);
-    setMode("signup-form");
+    if (selectedRole === "brand") {
+      navigate("/brand-register");
+    } else {
+      navigate("/influencer-register");
+    }
   };
 
   if (mode === "signup-role") {
