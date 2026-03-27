@@ -73,6 +73,28 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section className="bg-white px-4 py-16 text-slate-900 sm:px-6">
+        <div className="mx-auto w-full max-w-4xl text-center">
+          <h2 className="mb-4 text-2xl font-extrabold sm:text-3xl">Why Kalakaarian?</h2>
+          <p className="mx-auto max-w-2xl text-base text-slate-600">
+            We bridge the gap between brands and micro-influencers, creating authentic connections that drive real results. 
+            Our platform makes it easy to discover, collaborate, and scale campaigns together.
+          </p>
+        </div>
+      </section>
+
+      <section className="px-4 py-16 sm:px-6">
+        <div className="mx-auto w-full max-w-4xl text-center">
+          <h2 className="mb-6 text-2xl font-extrabold sm:text-3xl">Get In Touch</h2>
+          <p className="mb-6 text-base text-white/80">
+            Have questions? We'd love to hear from you.
+          </p>
+          <Button className="bg-white text-purple-700 hover:bg-white/90" onClick={() => navigate("/login")}>
+            Contact Us
+          </Button>
+        </div>
+      </section>
+
       <Footer />
     </main>
   );
