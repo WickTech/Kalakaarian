@@ -303,6 +303,27 @@ export const api = {
   getInfluencerById: async (id: string): Promise<InfluencerProfile> => {
     return request<InfluencerProfile>(`/api/influencers/${id}`);
   },
+
+  sendMessage: async (receiverId: string, content: string): Promise<any> => {
+    return request<any>("/api/messages/send", {
+      method: "POST",
+      body: JSON.stringify({ receiverId, content }),
+    });
+  },
+
+  getConversations: async (): Promise<any[]> => {
+    return request<any[]>("/api/messages/conversations");
+  },
+
+  getMessages: async (conversationId: string): Promise<any> => {
+    return request<any>(`/api/messages/conversations/${conversationId}`);
+  },
+
+  markAsRead: async (conversationId: string): Promise<void> => {
+    return request<void>(`/api/messages/conversations/${conversationId}/read`, {
+      method: "PUT",
+    });
+  },
 };
 
 export { ApiError };

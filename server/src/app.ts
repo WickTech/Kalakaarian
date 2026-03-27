@@ -8,6 +8,7 @@ import influencerRoutes from './routes/influencers';
 import campaignRoutes from './routes/campaigns';
 import proposalRoutes from './routes/proposals';
 import cartRoutes from './routes/cart';
+import messageRoutes from './routes/messages';
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use('/api/influencers', influencerRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use('/api/proposals', proposalRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/messages', messageRoutes);
 
 app.use(errorHandler);
 
