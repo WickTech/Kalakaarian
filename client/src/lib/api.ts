@@ -98,7 +98,7 @@ export interface Proposal {
   campaignTitle: string;
   influencerName: string;
   status: "pending" | "accepted" | "rejected";
-  price: number;
+  bidAmount: number;
   message?: string;
   createdAt: string;
 }
@@ -245,10 +245,10 @@ export const api = {
     return request<Campaign>(`/api/campaigns/${id}`);
   },
 
-  submitProposal: async (campaignId: string, message: string, price: number): Promise<Proposal> => {
+  submitProposal: async (campaignId: string, message: string, bidAmount: number): Promise<Proposal> => {
     return request<Proposal>(`/api/campaigns/${campaignId}/proposals`, {
       method: "POST",
-      body: JSON.stringify({ message, price }),
+      body: JSON.stringify({ message, bidAmount }),
     });
   },
 
@@ -323,6 +323,14 @@ export const api = {
     return request<void>(`/api/messages/conversations/${conversationId}/read`, {
       method: "PUT",
     });
+  },
+
+  getBrandAnalytics: async (): Promise<any> => {
+    return request<any>("/api/analytics/brand");
+  },
+
+  getInfluencerAnalytics: async (): Promise<any> => {
+    return request<any>("/api/analytics/influencer");
   },
 };
 

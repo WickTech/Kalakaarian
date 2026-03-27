@@ -49,7 +49,7 @@ export default function InfluencerDashboard() {
     accepted: proposals.filter((p) => p.status === "accepted").length,
     earnings: proposals
       .filter((p) => p.status === "accepted")
-      .reduce((sum, p) => sum + p.price, 0),
+      .reduce((sum, p) => sum + p.bidAmount, 0),
   };
 
   return (
@@ -196,7 +196,7 @@ export default function InfluencerDashboard() {
                   {proposals.map((proposal) => (
                     <TableRow key={proposal._id}>
                       <TableCell className="font-medium">{proposal.campaignTitle}</TableCell>
-                      <TableCell>₹{proposal.price.toLocaleString()}</TableCell>
+                      <TableCell>₹{proposal.bidAmount.toLocaleString()}</TableCell>
                       <TableCell>{new Date(proposal.createdAt).toLocaleDateString()}</TableCell>
                       <TableCell>
                         <Badge variant={statusColors[proposal.status] || "secondary"}>

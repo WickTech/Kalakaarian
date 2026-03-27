@@ -161,7 +161,7 @@ export default function CampaignDetails() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Your Price</p>
-                  <p className="text-xl font-bold">₹{proposal.price.toLocaleString()}</p>
+                  <p className="text-xl font-bold">₹{proposal.bidAmount.toLocaleString()}</p>
                 </div>
                 <Badge variant={statusColors[proposal.status] || "secondary"}>
                   {StatusIcon && <StatusIcon className="mr-1 h-3 w-3" />}

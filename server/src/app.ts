@@ -9,6 +9,7 @@ import campaignRoutes from './routes/campaigns';
 import proposalRoutes from './routes/proposals';
 import cartRoutes from './routes/cart';
 import messageRoutes from './routes/messages';
+import analyticsRoutes from './routes/analytics';
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use('/api/campaigns', campaignRoutes);
 app.use('/api/proposals', proposalRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 app.use(errorHandler);
 
