@@ -242,54 +242,6 @@ export default function Landing({ dark, toggleTheme, cartCount, onCartOpen }: La
         </div>
       </section>
 
-      {/* Experience the Influencers Section */}
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold tracking-tight mb-4">Experience the Influencers</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Connect with creators who understand your vision and amplify your brand&apos;s message
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            <Card className="border-2 hover:border-purple-500/50 transition-colors">
-              <CardContent className="pt-6">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center mb-4">
-                  <Users className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">Diverse Categories</h3>
-                <p className="text-sm text-muted-foreground">
-                  Find influencers across fashion, tech, food, fitness, and more niches tailored to your brand
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="border-2 hover:border-purple-500/50 transition-colors">
-              <CardContent className="pt-6">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center mb-4">
-                  <Target className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">Authentic Engagement</h3>
-                <p className="text-sm text-muted-foreground">
-                  Work with creators who have genuine connections with their audience for better results
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="border-2 hover:border-purple-500/50 transition-colors">
-              <CardContent className="pt-6">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center mb-4">
-                  <TrendingUp className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">Measurable Impact</h3>
-                <p className="text-sm text-muted-foreground">
-                  Track campaign performance and ROI with detailed analytics and reporting tools
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
       {/* Contact Us Section */}
       <section className="py-16 px-4 bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600">
         <div className="max-w-4xl mx-auto text-center text-white">
