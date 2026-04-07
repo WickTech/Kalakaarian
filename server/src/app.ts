@@ -14,16 +14,28 @@ import analyticsRoutes from './routes/analytics';
 dotenv.config();
 
 let isConnected = false;
+let connectionPromise: Promise<void> | null = null;
 
-const connectDB = async () => {
+const connectDB = async (): Promise<void> => {
   if (isConnected) return;
-  try {
-    await mongoose.connect(process.env.MONGODB_URI!);
-    isConnected = true;
-    console.log('MongoDB connected');
-  } catch (error) {
-    console.error('MongoDB connection error:', error);
-  }
+  
+  if (connectionPromise) return connectionPromise;
+  
+  connectionPromise = (async () => {
+    try {
+      await mongoose.connect(process.env.MONGODB_URI!, {
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+      });
+      isConnected = true;
+      console.log('MongoDB connected');
+    } catch (error) {
+      console.error('MongoDB connection error:', error);
+      connectionPromise = null;
+    }
+  })();
+  
+  return connectionPromise;
 };
 
 const app = express();
@@ -41,18 +53,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(async (req, res, next) => {
-  await connectDB();
+  try {
+    await Promise.race([
+      connectDB(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('DB connection timeout')), 3000))
+    ]);
+  } catch (e) {
+    console.error('DB connection timed out, continuing anyway');
+  }
   next();
 });
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+  res.json({ status: 'ok', dbConnected: isConnected });
 });
 
 app.get('/debug/cors', (req, res) => {
   res.json({
     origin: req.headers.origin,
     corsOrigin: process.env.CORS_ORIGIN,
+    dbConnected: isConnected,
   });
 });
 
