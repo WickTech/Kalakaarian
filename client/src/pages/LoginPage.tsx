@@ -46,13 +46,15 @@ export default function LoginPage() {
   };
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
+    console.log('Google credential received:', credentialResponse);
     try {
       setError("");
       setLoading(true);
       await loginWithGoogle(credentialResponse.credential);
       navigate("/dashboard");
     } catch (err) {
-      setError("Google login failed. Please try again.");
+      console.error('Google login error:', err);
+      setError(err instanceof Error ? err.message : "Google login failed. Please try again.");
     } finally {
       setLoading(false);
     }

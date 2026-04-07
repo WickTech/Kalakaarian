@@ -303,16 +303,29 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
     // Handle JWT credential from Google OAuth (frontend uses this)
     if (jwtToken) {
       // Decode JWT to get user info (no verification needed for basic info)
-      const base64Url = jwtToken.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const payload = JSON.parse(Buffer.from(base64, 'base64').toString());
-      
-      googleUser = {
-        id: payload.sub,
-        email: payload.email,
-        name: payload.name,
-        picture: payload.picture,
-      };
+      try {
+        const base64Url = jwtToken.split('.')[1];
+        let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        // Add padding if needed
+        const padding = base64.length % 4;
+        if (padding) {
+          base64 += '='.repeat(4 - padding);
+        }
+        const payload = JSON.parse(Buffer.from(base64, 'base64').toString());
+        
+        console.log('Google JWT payload:', payload);
+        
+        googleUser = {
+          id: payload.sub,
+          email: payload.email,
+          name: payload.name,
+          picture: payload.picture,
+        };
+      } catch (decodeError) {
+        console.error('JWT decode error:', decodeError);
+        res.status(400).json({ message: 'Invalid Google token', error: String(decodeError) });
+        return;
+      }
     } else if (code) {
       // Handle OAuth authorization code
       googleUser = await getGoogleUserInfo(code);
