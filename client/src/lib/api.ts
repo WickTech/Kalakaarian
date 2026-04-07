@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://kalakaarian-production.up.railway.app";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://kalakaarian-server.vercel.app";
 
 export interface User {
   _id: string;
