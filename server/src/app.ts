@@ -53,6 +53,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(async (req, res, next) => {
+  if (!process.env.MONGODB_URI) {
+    console.log('No MONGODB_URI, skipping DB connection');
+    return next();
+  }
   try {
     await Promise.race([
       connectDB(),
