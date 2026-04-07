@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import serverless from 'serverless';
+import serverless from 'serverless-http';
 import connectDB from './config/database';
 import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './routes/auth';
@@ -42,7 +42,6 @@ const corsOptions: cors.CorsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -73,27 +72,6 @@ app.use('/api/analytics', analyticsRoutes);
 
 app.use(errorHandler);
 
-const server = app;
-let handler = serverless(server);
+const handler = serverless(app);
 
-// Connect to database in serverless mode before each request
-const handlerWithDB = async (event: any, context: any) => {
-  try {
-    await connectDB();
-  } catch (error) {
-    console.error('Database connection error:', error);
-  }
-  return handler(event, context);
-};
-
-export { handler: handlerWithDB };
-
-// For local development
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5000;
-  connectDB().then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  });
-}
+export { handler };
