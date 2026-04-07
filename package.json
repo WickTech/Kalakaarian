@@ -16,5 +16,8 @@
     "typecheck": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "test:e2e": "npm run test:e2e --workspace=client"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2"
   }
 }
