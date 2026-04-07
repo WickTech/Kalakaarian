@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import serverless from 'serverless-http';
+import mongoose from 'mongoose';
 import authRoutes from './routes/auth';
 import influencerRoutes from './routes/influencers';
 import campaignRoutes from './routes/campaigns';
@@ -11,6 +12,19 @@ import messageRoutes from './routes/messages';
 import analyticsRoutes from './routes/analytics';
 
 dotenv.config();
+
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected) return;
+  try {
+    await mongoose.connect(process.env.MONGODB_URI!);
+    isConnected = true;
+    console.log('MongoDB connected');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+  }
+};
 
 const app = express();
 
@@ -25,6 +39,11 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
