@@ -1,5 +1,6 @@
 {
-  "buildCommand": "pnpm --filter vite_react_shadcn_ts build",
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm -F vite_react_shadcn_ts build",
   "outputDirectory": "client/dist",
   "framework": "vite"
 }
