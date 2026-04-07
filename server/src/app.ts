@@ -47,4 +47,4 @@ app.use('/api/analytics', analyticsRoutes);
 
 const handler = serverless(app);
 
-export { handler };
+export default handler;
