@@ -126,12 +126,7 @@ const App = () => {
               <Route
                 path="/"
                 element={
-                  <Landing
-                    dark={dark}
-                    toggleTheme={toggle}
-                    cartCount={cart.count}
-                    onCartOpen={() => setCartOpen(true)}
-                  />
+                  <Landing />
                 }
               />
               <Route

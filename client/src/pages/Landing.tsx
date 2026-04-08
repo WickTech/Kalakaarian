@@ -1,72 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Users, Target, TrendingUp, Shield, Sparkles } from "lucide-react";
 
 interface LandingProps {
-  dark: boolean;
-  toggleTheme: () => void;
-  cartCount: number;
-  onCartOpen: () => void;
 }
 
-const whyKalakaarian = [
-  {
-    icon: Users,
-    title: "Creator Connectivity",
-    description: "Connect with countless creators in a single click, with zero margins.",
-  },
-  {
-    icon: Target,
-    title: "Fast Campaign Delivery",
-    description: "Get your campaign ready within 24 hours with the lowest platform fee.",
-  },
-  {
-    icon: TrendingUp,
-    title: "Track & Navigate",
-    description: "Track your payments and navigate your campaigns seamlessly.",
-  },
-  {
-    icon: Sparkles,
-    title: "AI Profile Suggestions",
-    description: "Use AI to find creators with 100% compatibility for your target audience.",
-  },
-];
-
-const tiers = [
-  {
-    key: "nano",
-    label: "Nano Creator",
-    range: "2K - 25K Followers",
-    desc: "INVENTORY: 30 ASSETS",
-    color: "border-terminal",
-  },
-  {
-    key: "micro",
-    label: "Micro Creator",
-    range: "26K - 250K Followers",
-    desc: "INVENTORY: 30 ASSETS",
-    color: "border-terminal",
-  },
-  {
-    key: "macro",
-    label: "Macro Creator",
-    range: "251K - 3M Followers",
-    desc: "INVENTORY: 30 ASSETS",
-    color: "border-terminal",
-  },
-  {
-    key: "celebrity",
-    label: "Celebrity",
-    range: "3M+ Followers",
-    desc: "INVENTORY: 10 ASSETS",
-    color: "border-destructive",
-  },
-];
-
-export default function Landing({ dark, toggleTheme, cartCount, onCartOpen }: LandingProps) {
+export default function Landing({ }: LandingProps) {
   const navigate = useNavigate();
 
   return (
@@ -74,26 +15,14 @@ export default function Landing({ dark, toggleTheme, cartCount, onCartOpen }: La
       {/* Header */}
       <header className="border-b border-border flex items-center justify-between px-4 py-3 shrink-0">
         <div className="flex items-center gap-3">
-          <h1 className="font-mono text-sm uppercase tracking-[0.3em] font-bold">
-            <span className="text-terminal">■</span> KALAKAARIAN
-          </h1>
+          <Link to="/">
+            <img src="/k-logo.png" alt="Kalakaarian" className="h-10 w-auto" />
+          </Link>
         </div>
         <div className="flex items-center gap-2">
-          <ThemeToggle dark={dark} toggle={toggleTheme} />
-          <Link to="/login">
-            <Button variant="outline" size="sm">Login</Button>
-          </Link>
           <Link to="/role-select">
             <Button size="sm">Get Started</Button>
           </Link>
-          <button onClick={onCartOpen} className="border border-border p-2 hover:border-terminal transition-colors relative">
-            <span className="font-mono text-xs">CART</span>
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-terminal text-primary-foreground font-mono text-[10px] flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
-          </button>
         </div>
       </header>
 
