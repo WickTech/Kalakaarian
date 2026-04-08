@@ -13,6 +13,7 @@ interface LandingProps {
 export default function Landing({ dark, toggleTheme }: LandingProps) {
   const navigate = useNavigate();
 
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/30">
       {/* Header */}
