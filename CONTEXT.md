@@ -1,6 +1,6 @@
 # Kalakaarian - Project Context
 
-**Last Updated:** 2026-04-07
+**Last Updated:** 2026-04-08
 
 ---
 
@@ -36,7 +36,7 @@ Login / Sign Up (Email + Password + Google Auth)
 - **Backend:** Node.js + Express + TypeScript
 - **Database:** MongoDB + Mongoose
 - **Auth:** JWT (Email/Password) + Google OAuth 2.0
-- **Deployment:** Vercel (frontend + backend)
+- **Deployment:** Vercel (frontend + backend serverless)
 
 ---
 
@@ -80,16 +80,58 @@ Fixed critical API mismatches:
 - ✅ Added "View Proposals" functionality.
 - ✅ **Implemented Accept/Reject proposal UI** with real API integration.
 
+### Phase 7: Deployment Configuration (2026-04-08)
+- ✅ Separated Vercel configs for client and server
+- ✅ Created `client/vercel.json` with Vite framework config
+- ✅ Created `server/vercel.json` with Node framework config
+- ✅ Removed conflicting root `vercel.json`
+- ✅ Fixed TypeScript type definitions (moved @types to dependencies)
+- ✅ Exported serverless handler for Vercel serverless functions
+
+### Phase 8: Header & Logo Updates (2026-04-08)
+- ✅ Simplified header - removed Login/Cart buttons
+- ✅ Added logo image (k-logo-no-bg.png) in header
+- ✅ Added "KALAKAARIAN" text beside logo with original styling
+- ✅ Removed theme toggle from header (kept in landing page)
+- ✅ Set no-background logo as browser favicon
+
+### Phase 9: Influencer Registration & Marketplace Enhancement (2026-04-08)
+- ✅ **Profile Image Handling:**
+  - Added optional profile image upload in influencer registration
+  - Added default avatar fallback (DiceBear)
+  - New influencers automatically appear in marketplace
+- ✅ **Removed Unnecessary Metrics:**
+  - Removed follower count, Instagram followers, YouTube subscribers, engagement rate from forms and schema
+- ✅ **Marketplace Visibility:**
+  - All newly registered influencers automatically visible in marketplace
+- ✅ **Data Fields:**
+  - Full Name, Username/Handle, Bio, Category/Niche, Social Media Links, Location, Profile Image with default fallback
+- ✅ **Updated Backend Schema:**
+  - Added `profileImage` field to InfluencerProfile
+  - Removed `followerCount`, `followers`, `engagementRate` fields
+  - Updated types and controllers
+- ✅ **Updated Frontend:**
+  - InfluencerRegisterPage with image upload, removed follower fields
+  - Marketplace uses API data with profile images
+  - InfluencerCard simplified to show profile image, name, handle, tier, niche, city
+
+### Phase 10: Dynamic Tier Counts (2026-04-08)
+- ✅ Added `GET /api/influencers/tier-counts` endpoint
+- ✅ Landing page fetches live tier counts from API
+- ✅ Shows "Loading..." while fetching
+- ✅ Shows "X Active Influencers" with proper singular/plural
+- ✅ Counts update automatically when new influencers register
+
 ---
 
 ## Current Status
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| Frontend | ✅ | Build passing, blank screen fixed |
-| Backend | ✅ | API endpoints ready |
+| Frontend | ✅ | Build passing, landing page with dynamic tiers |
+| Backend | ✅ | API endpoints ready, serverless handler configured |
 | MongoDB | ✅ | Connected (Atlas/Railway) |
-| Deployment | ✅ | Vercel (serverless) |
+| Deployment | ✅ | Vercel (frontend + backend serverless) |
 
 ---
 
@@ -97,62 +139,43 @@ Fixed critical API mismatches:
 
 1. ~~Blank Screen on Load~~ - FIXED
 2. ~~Marketplace showing no data~~ - FIXED
-3. Payment Integration: Still pending (Phase 10).
-4. Analytics UI: APIs ready, but visualization (charts) not yet implemented.
+3. Payment Integration: Still pending
+4. Analytics UI: APIs ready but visualization not yet implemented
 
 ---
 
-## Recent Session Fixes (2026-04-07)
-### Backend Migration to Vercel Serverless
-- ✅ Added `serverless-http` package for serverless support
-- ✅ Created `vercel.json` with @vercel/node build config
-- ✅ Updated `database.ts` with connection caching (global mongoose cache for cold starts)
-- ✅ Updated `app.ts` to export serverless handler instead of `app.listen()`
-- ✅ Fixed TypeScript errors (CORS options type, reduce callback type)
-- ✅ Added `@types/serverless` for TypeScript support
+## Recent Session Fixes (2026-04-08)
+
+### Deployment Configuration
+- Created separate vercel.json for client and server
+- Fixed TypeScript type definitions (@types moved to dependencies)
+- Configured serverless-http handler export
+
+### Header Updates
+- Simplified header with logo and "Get Started" button
+- Added theme toggle back
+- Set logo as favicon
+- Used no-background logo in header
+
+### Influencer System
+- Added profile image upload to registration
+- Removed follower count metrics (not required per business logic)
+- Added dynamic tier counts API
+- Updated marketplace UI with live counts
 
 ---
 
-## Recent Session Fixes (2026-03-27)
-1. **Google Auth:** Wrapped `App` in `GoogleOAuthProvider` but added a safety check to bypass if `clientId` is missing to prevent crashes.
-2. **Missing Types:** Defined `LoginResponse` interface in `api.ts`.
-3. **API Alignment:** Updated `respondToProposal` to use `POST /api/proposals/:id/respond`.
-4. **Messaging:** Created `Messages.tsx` and connected all chat APIs.
-
-## Session Fixes (2026-03-28)
-1. **App.tsx:** Added missing `Messages` import (was used in route but not imported, causing blank screen).
-2. **Marketplace.tsx:** Added missing `ChevronDown` import from lucide-react.
-3. **Marketplace.tsx:** Added mock data (6 influencers) with proper `Influencer` type for when API fails/returns empty.
-4. **Marketplace.tsx:** Fixed filter logic to work with mock data structure (used `i.platform`, `i.followers` instead of nested objects).
-5. **App.tsx:** Removed `ProtectedRoute` from registration pages (`/influencer-register`, `/brand-register`). Users couldn't register because they were redirected to login since they weren't logged in yet.
-
-## Session Fixes (2026-03-30)
-1. **Removed TikTok:** Removed TikTok from all influencer-related forms and models (banned in India).
-2. **Influencer Registration Enhanced:**
-   - Added Instagram handle + YouTube channel URL fields
-   - Added follower count fields (Instagram/YouTube)
-   - Added engagement rate field
-   - Updated backend to store socialHandles as nested object
-   - Updated backend to store followers as nested object
-3. **Influencer Profile Model:**
-   - Removed TikTok/Twitter from socialHandles
-   - Removed TikTok/Twitter from followers
-   - Added engagementRate field
-   - Platform now limited to ['instagram', 'youtube']
-4. **InfluencerDashboard:** Added social links display with Instagram/YouTube clickable badges
-5. **EditInfluencerProfile:** Updated to use new socialHandles structure, added city field
-
-## Full Website Audit (2026-03-28)
+## Full Website Audit (2026-04-08)
 
 ### Frontend Pages - Status
 | Page | Status | Notes |
 |------|--------|-------|
-| Landing.tsx | ✅ Working | Main landing page |
+| Landing.tsx | ✅ Working | Main landing with dynamic tier counts |
 | LoginPage.tsx | ✅ Working | Login + Signup flow |
 | RoleSelectPage.tsx | ✅ Working | Role selection |
-| InfluencerRegisterPage.tsx | ✅ Working | Registration form (fixed) |
-| BrandRegisterPage.tsx | ✅ Working | Registration form (fixed) |
-| Marketplace.tsx | ✅ Working | With mock data fallback |
+| InfluencerRegisterPage.tsx | ✅ Working | With profile image upload |
+| BrandRegisterPage.tsx | ✅ Working | Registration form |
+| Marketplace.tsx | ✅ Working | Connected to API |
 | BrandDashboard.tsx | ✅ Working | Campaign + proposal management |
 | InfluencerDashboard.tsx | ✅ Working | Proposals + profile |
 | BrowseCampaigns.tsx | ✅ Working | List open campaigns |
@@ -162,7 +185,7 @@ Fixed critical API mismatches:
 | Messages.tsx | ✅ Working | Chat UI |
 | MyProfile.tsx | ✅ Working | Profile view |
 | EditInfluencerProfile.tsx | ✅ Working | Edit profile |
-| EditBrandProfile.tsx | ✅ Working | Edit brand profile |
+| EditBrandProfile.tsx | ✅ Working | Edit profile |
 
 ### Backend API - Status
 | Endpoint | Status |
@@ -170,22 +193,47 @@ Fixed critical API mismatches:
 | Auth (register, login, profile) | ✅ Working |
 | Campaigns CRUD | ✅ Working |
 | Proposals CRUD | ✅ Working |
-| Influencers search | ✅ Working |
+| Influencers (search, tier-counts) | ✅ Working |
 | Messages | ✅ Working |
 | Analytics | ✅ Working |
 | Cart | ✅ Working |
 
-### Unused/Legacy Files
-- `Dashboard.tsx` - Not used in routes
-- `BrandCampaignPage.tsx` - Not used in routes  
-- `LandingPage.tsx` - Not imported
-- `Index.tsx` - Not imported
+---
 
-### Known Issues / Pending
-1. Payment Integration: Not implemented
-2. Analytics UI: APIs ready but no charts visualization
-3. Email notifications: Not implemented
-4. Admin panel: Not implemented
+## Upcoming Features (Pending Implementation)
+
+### Phase 11: Social Media Integration & Tier Classification
+**Status: Planned (Brainstorming phase)**
+
+1. **Social Media Data Integration**
+   - Integrate with Instagram and YouTube APIs (or manual input fallback)
+   - Fetch follower count, subscriber count, recent posts/videos
+   - Implement periodic background jobs for data refresh
+
+2. **Follower-Based Tier System**
+   - Auto-classify based on total audience size:
+     - Nano: 2K - 25K followers
+     - Micro: 25K - 250K followers
+     - Macro: 250K - 3M followers
+     - Celebrity: 3M+ followers
+   - Tier badge colors: Nano (Gray), Micro (Blue), Macro (Purple), Celebrity (Gold)
+
+3. **Influencer Profile Page**
+   - Dedicated detail page from marketplace
+   - Display: profile info, social stats, tier badge, social links
+
+4. **Content Aggregation & Display**
+   - Fetch influencer content (Instagram posts, YouTube videos)
+   - Grid layout with thumbnails, titles, metrics
+   - Pagination/lazy loading
+
+5. **Backend Requirements**
+   - Update schema for `instagram_followers`, `youtube_subscribers`, `tier`, `social_content`
+   - Create APIs for profile with content, sync social data
+
+6. **Implementation Approach (Hybrid)**
+   - Start with manual input fallback (simpler)
+   - API-ready architecture for future integration
 
 ---
 
@@ -195,17 +243,22 @@ Fixed critical API mismatches:
 kalakaarian/
 ├── client/                    # Frontend (Vite + React)
 │   ├── src/
-│   │   ├── pages/            # Page components (21 pages)
-│   │   ├── hooks/            # React hooks (useAuth, useCart, useTheme)
+│   │   ├── pages/            # Page components
+│   │   ├── hooks/            # React hooks
 │   │   ├── lib/              # API client & stores
 │   │   └── components/       # Reusable UI components
+│   ├── public/                # Static assets (logos, favicon)
+│   └── vercel.json           # Vercel config for frontend
 └── server/                   # Backend (Express + TypeScript)
     └── src/
         ├── routes/           # API endpoints
         ├── controllers/      # Business logic
         ├── models/           # MongoDB models
         └── middleware/       # Auth, validation
+    └── vercel.json           # Vercel config for backend
 ```
+
+---
 
 ## How to Run
 
@@ -215,19 +268,31 @@ cd /home/rishi/github/kalakaarian
 # Install dependencies
 pnpm install
 
-# Frontend (runs on port 5173/8080)
+# Frontend (runs on port 8080)
 cd client && pnpm dev
 
 # Backend (runs on port 3000, needs MongoDB)
 cd server && pnpm dev
 ```
 
-## Tomorrow's Tasks (Priority Order)
+---
 
-1. **Test Registration Flow** - Verify influencers can register with social handles
-2. **AI Integration** - Integrate Ollama with Qwen3:8b for campaign matching
-3. **Payment Integration** - Add payment gateway (Razorpay/Stripe)
-4. **Analytics Charts** - Add visualization for campaign/proposal stats
-5. **Email Notifications** - Welcome emails, proposal updates
-6. **Admin Panel** - User management, platform analytics
-7. **Cleanup** - Remove unused files (Dashboard.tsx, BrandCampaignPage.tsx, etc.)
+## Session Summary (2026-04-08)
+
+### Today's Work Completed:
+1. Fixed Vercel deployment - separated client/server configs
+2. Updated header - logo + simplified buttons
+3. Enhanced influencer registration - profile image, removed follower fields
+4. Added dynamic tier counts - live API data in marketplace UI
+5. Updated documentation
+
+### Tomorrow's Tasks:
+1. **Continue Social Media Integration** (brainstorming → design → implementation)
+   - Schema updates for follower counts
+   - Tier auto-calculation
+   - Influencer profile page
+   - Content aggregation display
+
+---
+
+*Context saved for future session resume.*
