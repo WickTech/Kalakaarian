@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { ShoppingCart, Check, Users } from "lucide-react";
+import { ShoppingCart, Check, MapPin } from "lucide-react";
 import { Influencer } from "@/lib/store";
+
+const DEFAULT_AVATAR = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default';
 
 interface InfluencerCardProps {
   influencer: Influencer;
@@ -8,41 +9,36 @@ interface InfluencerCardProps {
   onAddToCart: (i: Influencer) => void;
 }
 
-function formatNum(n: number) {
-  if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
-  return String(n);
-}
-
-function formatPrice(n: number) {
-  if (n >= 100000) return `₹${(n / 100000).toFixed(1)}L`;
-  if (n >= 1000) return `₹${(n / 1000).toFixed(1)}K`;
-  return `₹${n}`;
-}
-
 export function InfluencerCard({ influencer, isInCart, onAddToCart }: InfluencerCardProps) {
-  const [hoverFollowers, setHoverFollowers] = useState(false);
+  const hasLocation = influencer.city && influencer.city.trim() !== "";
+  const hasNiche = influencer.genre && influencer.genre.trim() !== "";
 
   return (
-    <div className="border border-border bg-card group hover:border-terminal transition-colors">
+    <div className="border border-border bg-card group hover:border-purple-500 transition-colors">
       {/* Photo */}
       <div className="aspect-square overflow-hidden relative">
         <img
-          src={influencer.photo}
+          src={influencer.photo || DEFAULT_AVATAR}
           alt={influencer.name}
           className="w-full h-full object-cover"
           loading="lazy"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = DEFAULT_AVATAR;
+          }}
         />
         <div className="absolute top-2 right-2">
           <span className="font-mono text-[10px] uppercase tracking-widest bg-background/90 border border-border px-2 py-0.5 text-foreground">
-            {influencer.genre}
+            {influencer.tier}
           </span>
         </div>
-        <div className="absolute bottom-2 left-2">
-          <span className="font-mono text-[10px] uppercase tracking-widest bg-background/90 border border-border px-2 py-0.5 text-muted-foreground">
-            {influencer.city}
-          </span>
-        </div>
+        {hasLocation && (
+          <div className="absolute bottom-2 left-2 flex items-center gap-1">
+            <MapPin className="w-3 h-3 text-muted-foreground" />
+            <span className="font-mono text-[10px] uppercase tracking-widest bg-background/90 border border-border px-2 py-0.5 text-muted-foreground">
+              {influencer.city}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Info */}
@@ -50,72 +46,47 @@ export function InfluencerCard({ influencer, isInCart, onAddToCart }: Influencer
         <div className="flex justify-between items-start">
           <div>
             <p className="text-sm font-semibold leading-tight">{influencer.name}</p>
-            <p className="font-mono text-xs text-muted-foreground">{influencer.handle}</p>
+            {influencer.handle && (
+              <p className="font-mono text-xs text-muted-foreground">{influencer.handle}</p>
+            )}
           </div>
         </div>
 
-        {/* Data Table */}
-        <div className="grid grid-cols-3 border border-border divide-x divide-border">
-          <div className="p-2 text-center">
-            <p className="font-mono text-[10px] uppercase text-muted-foreground">Reach</p>
-            <p
-              className="font-mono text-sm font-bold relative cursor-pointer"
-              onMouseEnter={() => setHoverFollowers(true)}
-              onMouseLeave={() => setHoverFollowers(false)}
-            >
-              {hoverFollowers ? (
-                <span className="text-neon-red">{formatNum(influencer.activeFollowers)}</span>
-              ) : (
-                <span>{formatNum(influencer.followers)}</span>
-              )}
-            </p>
+        {/* Niche Tags */}
+        {hasNiche && (
+          <div className="flex flex-wrap gap-1">
+            <span className="font-mono text-[10px] uppercase tracking-widest bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-0.5">
+              {influencer.genre}
+            </span>
           </div>
-          <div className="p-2 text-center">
-            <p className="font-mono text-[10px] uppercase text-muted-foreground">Avg Views</p>
-            <p className="font-mono text-sm font-bold">{formatNum(influencer.avgViews)}</p>
-          </div>
-          <div className="p-2 text-center">
-            <p className="font-mono text-[10px] uppercase text-muted-foreground">Avg Likes</p>
-            <p className="font-mono text-sm font-bold">{formatNum(influencer.avgLikes)}</p>
-          </div>
-        </div>
+        )}
 
-        {/* Gender & Fake */}
-        <div className="grid grid-cols-2 gap-1">
-          <div className="border border-border p-1.5">
-            <p className="font-mono text-[9px] uppercase text-muted-foreground flex items-center gap-1">
-              <Users className="w-3 h-3" /> Gender
-            </p>
-            <p className="font-mono text-[10px]">
-              M:{influencer.genderSplit.male}% F:{influencer.genderSplit.female}%
-            </p>
-          </div>
-          <div className="border border-border p-1.5">
-            <p className="font-mono text-[9px] uppercase text-muted-foreground">Fake</p>
-            <p className="font-mono text-[10px] text-neon-red font-bold">
-              {((influencer.fakeFollowers / influencer.followers) * 100).toFixed(1)}%
-            </p>
-          </div>
+        {/* Social Handles */}
+        <div className="flex gap-2 text-xs text-muted-foreground">
+          {influencer.platform === "instagram" && (
+            <span className="text-ig-pink">Instagram</span>
+          )}
+          {influencer.platform === "youtube" && (
+            <span className="text-yt-red">YouTube</span>
+          )}
         </div>
 
         {/* Price & Cart */}
         <div className="flex items-center justify-between border-t border-border pt-2">
-          <span className="font-mono text-lg font-bold text-terminal">
-            {influencer.price ? formatPrice(influencer.price) : "GET IN TOUCH"}
+          <span className="font-mono text-lg font-bold text-purple-600">
+            GET IN TOUCH
           </span>
-          {influencer.price !== null && (
-            <button
-              onClick={() => onAddToCart(influencer)}
-              disabled={isInCart}
-              className={`p-2 border transition-colors ${
-                isInCart
-                  ? "border-terminal bg-terminal text-primary-foreground"
-                  : "border-border hover:border-terminal hover:text-terminal"
-              }`}
-            >
-              {isInCart ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
-            </button>
-          )}
+          <button
+            onClick={() => onAddToCart(influencer)}
+            disabled={isInCart}
+            className={`p-2 border transition-colors ${
+              isInCart
+                ? "border-purple-600 bg-purple-600 text-white"
+                : "border-border hover:border-purple-600 hover:text-purple-600"
+            }`}
+          >
+            {isInCart ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
+          </button>
         </div>
       </div>
     </div>

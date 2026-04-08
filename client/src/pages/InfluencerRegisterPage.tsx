@@ -1,6 +1,6 @@
 import { FormEvent, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { InfluencerNiche } from "@/data/mockInfluencers";
+
+const DEFAULT_AVATAR = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default';
 
 const NICHE_OPTIONS: InfluencerNiche[] = [
   "Fashion",
@@ -33,9 +35,7 @@ interface InfluencerRegisterFormData {
   instagramHandle: string;
   youtubeUrl: string;
   niches: InfluencerNiche[];
-  instagramFollowers: string;
-  youtubeSubscribers: string;
-  engagementRate: string;
+  profileImage: string;
 }
 
 interface InfluencerErrors {
@@ -54,6 +54,7 @@ export default function InfluencerRegisterPage() {
   const { register } = useAuth();
   const [errors, setErrors] = useState<InfluencerErrors>({});
   const [loading, setLoading] = useState(false);
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const [form, setForm] = useState<InfluencerRegisterFormData>({
     fullName: "",
     email: "",
@@ -63,9 +64,7 @@ export default function InfluencerRegisterPage() {
     instagramHandle: "",
     youtubeUrl: "",
     niches: [],
-    instagramFollowers: "",
-    youtubeSubscribers: "",
-    engagementRate: "",
+    profileImage: "",
   });
 
   const bioCount = useMemo(() => form.bio.length, [form.bio]);
@@ -75,6 +74,18 @@ export default function InfluencerRegisterPage() {
       ...prev,
       niches: prev.niches.includes(niche) ? prev.niches.filter((item) => item !== niche) : [...prev.niches, niche],
     }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setForm((prev) => ({ ...prev, profileImage: reader.result as string }));
+        setProfilePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -114,11 +125,7 @@ export default function InfluencerRegisterPage() {
           instagram: form.instagramHandle || undefined,
           youtube: form.youtubeUrl || undefined,
         },
-        followers: {
-          instagram: form.instagramFollowers ? Number(form.instagramFollowers) : undefined,
-          youtube: form.youtubeSubscribers ? Number(form.youtubeSubscribers) : undefined,
-        },
-        engagementRate: form.engagementRate ? Number(form.engagementRate) : undefined,
+        profileImage: form.profileImage || DEFAULT_AVATAR,
       });
       navigate("/influencer/dashboard");
     } catch (err) {
@@ -197,6 +204,35 @@ export default function InfluencerRegisterPage() {
               </section>
 
               <section className="space-y-3">
+                <h2 className="font-semibold">Profile Picture</h2>
+                <div className="flex items-center gap-4">
+                  <div className="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-2 border-dashed border-gray-300">
+                    {profilePreview ? (
+                      <img src={profilePreview} alt="Profile preview" className="h-full w-full object-cover" />
+                    ) : (
+                      <Upload className="h-8 w-8 text-gray-400" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <Label htmlFor="profileImage" className="cursor-pointer">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                        <Upload className="h-4 w-4" />
+                        <span>Upload Photo</span>
+                      </div>
+                    </Label>
+                    <Input
+                      id="profileImage"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageChange}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">Optional. A default avatar will be used if not uploaded.</p>
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-3">
                 <h2 className="font-semibold">Bio</h2>
                 <div className="grid gap-2">
                   <Label htmlFor="bio">About You *</Label>
@@ -233,18 +269,6 @@ export default function InfluencerRegisterPage() {
                   ))}
                 </div>
                 {errors.niches && <p className="text-xs text-destructive">{errors.niches}</p>}
-              </section>
-
-              <section className="space-y-3">
-                <h2 className="font-semibold">Follower Count & Reach</h2>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Input type="number" min={0} placeholder="Instagram Followers" value={form.instagramFollowers} onChange={(event) => setForm((prev) => ({ ...prev, instagramFollowers: event.target.value }))} />
-                  <Input type="number" min={0} placeholder="YouTube Subscribers" value={form.youtubeSubscribers} onChange={(event) => setForm((prev) => ({ ...prev, youtubeSubscribers: event.target.value }))} />
-                  <div className="relative sm:col-span-2">
-                    <Input type="number" min={0} step="0.01" placeholder="Average Engagement Rate (%)" value={form.engagementRate} onChange={(event) => setForm((prev) => ({ ...prev, engagementRate: event.target.value }))} className="pr-7" />
-                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
-                  </div>
-                </div>
               </section>
 
               <Button type="submit" className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-95" disabled={loading}>

@@ -22,18 +22,10 @@ export interface IInfluencerProfile {
   socialHandles: {
     instagram?: string;
     youtube?: string;
-    tiktok?: string;
-    twitter?: string;
   };
-  followerCount: number;
-  platform: ('instagram' | 'youtube' | 'tiktok' | 'twitter')[];
+  profileImage?: string;
+  platform: ('instagram' | 'youtube')[];
   tier: 'nano' | 'micro' | 'mid' | 'macro' | 'mega';
-  followers: {
-    instagram?: number;
-    youtube?: number;
-    tiktok?: number;
-    twitter?: number;
-  };
   pricing: {
     story?: number;
     reel?: number;

@@ -44,6 +44,7 @@ export interface CampaignFilters {
 
 export interface InfluencerProfile {
   _id: string;
+  id?: string;
   name?: string;
   bio?: string;
   niches?: string[];
@@ -54,13 +55,7 @@ export interface InfluencerProfile {
     instagram?: string;
     youtube?: string;
   };
-  followers?: {
-    instagram?: number;
-    youtube?: number;
-    total?: number;
-  };
-  followerCount?: number;
-  engagementRate?: number;
+  profileImage?: string;
   verified?: boolean;
 }
 
@@ -132,11 +127,7 @@ export interface RegisterData {
     instagram?: string;
     youtube?: string;
   };
-  followers?: {
-    instagram?: number;
-    youtube?: number;
-  };
-  engagementRate?: number;
+  profileImage?: string;
 }
 
 export interface LoginResponse {

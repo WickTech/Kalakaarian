@@ -3,6 +3,8 @@ import { IInfluencerProfile } from '../types';
 
 interface IInfluencerProfileDocument extends IInfluencerProfile, Document {}
 
+const DEFAULT_AVATAR = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default';
+
 const influencerProfileSchema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
@@ -13,14 +15,9 @@ const influencerProfileSchema = new Schema(
       instagram: String,
       youtube: String,
     },
-    followerCount: { type: Number, default: 0, index: true },
+    profileImage: { type: String, default: DEFAULT_AVATAR },
     platform: [{ type: String, enum: ['instagram', 'youtube'] }],
     tier: { type: String, enum: ['nano', 'micro', 'mid', 'macro', 'mega'], default: 'micro', index: true },
-    followers: {
-      instagram: Number,
-      youtube: Number,
-    },
-    engagementRate: { type: Number, default: 0 },
     pricing: {
       story: Number,
       reel: Number,
@@ -34,6 +31,5 @@ const influencerProfileSchema = new Schema(
 );
 
 influencerProfileSchema.index({ niches: 1, tier: 1 });
-influencerProfileSchema.index({ followerCount: -1 });
 
 export default mongoose.model<IInfluencerProfileDocument>('InfluencerProfile', influencerProfileSchema);

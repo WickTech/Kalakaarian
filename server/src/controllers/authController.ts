@@ -135,7 +135,7 @@ export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, username, phone, password, name, role, companyName, industry, city, niches, platform, tier, bio, socialHandles, followers, engagementRate } = req.body;
+    const { email, username, phone, password, name, role, companyName, industry, city, niches, platform, tier, bio, socialHandles, profileImage } = req.body;
 
     if (!email && !phone && !username) {
       res.status(400).json({ message: 'Email, phone, or username is required' });
@@ -192,9 +192,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         platform: platform || [],
         tier: tier || 'micro',
         socialHandles: socialHandles || {},
-        followers: followers || {},
-        engagementRate: engagementRate || 0,
-        followerCount: followers ? Object.values(followers).reduce((sum: number, val: unknown) => sum + ((val as number) || 0), 0) : 0,
+        profileImage: profileImage || undefined,
       });
     }
 
