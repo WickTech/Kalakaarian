@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Users, Target, TrendingUp, Shield, Sparkles } from "lucide-react";
+import { api } from "@/lib/api";
 
 interface LandingProps {
   dark?: boolean;
@@ -12,31 +14,52 @@ interface LandingProps {
 
 export default function Landing({ dark, toggleTheme }: LandingProps) {
   const navigate = useNavigate();
+  const [tierCounts, setTierCounts] = useState<Record<string, number>>({ nano: 0, micro: 0, macro: 0, mega: 0 });
+  const [loadingCounts, setLoadingCounts] = useState(true);
+
+  useEffect(() => {
+    const fetchTierCounts = async () => {
+      try {
+        const counts = await api.getTierCounts();
+        setTierCounts({
+          nano: counts.nano || 0,
+          micro: counts.micro || 0,
+          macro: counts.macro || 0,
+          mega: counts.mega || 0,
+        });
+      } catch (error) {
+        console.error("Failed to fetch tier counts:", error);
+      } finally {
+        setLoadingCounts(false);
+      }
+    };
+    fetchTierCounts();
+  }, []);
 
   const tiers = [
     {
       key: "nano",
       label: "Nano Creator",
       range: "2K - 25K Followers",
-      desc: "INVENTORY: 30 ASSETS",
+      count: tierCounts.nano,
     },
     {
       key: "micro",
       label: "Micro Creator",
       range: "26K - 250K Followers",
-      desc: "INVENTORY: 30 ASSETS",
+      count: tierCounts.micro,
     },
     {
       key: "macro",
       label: "Macro Creator",
       range: "251K - 3M Followers",
-      desc: "INVENTORY: 30 ASSETS",
+      count: tierCounts.macro,
     },
     {
-      key: "celebrity",
+      key: "mega",
       label: "Celebrity",
       range: "3M+ Followers",
-      desc: "INVENTORY: 10 ASSETS",
+      count: tierCounts.mega,
     },
   ];
 
@@ -149,7 +172,9 @@ export default function Landing({ dark, toggleTheme }: LandingProps) {
                 <h3 className="text-3xl font-oswald font-bold mb-3 group-hover:text-purple-600 transition-colors">
                   {tier.label}
                 </h3>
-                <p className="text-sm text-muted-foreground">{tier.desc}</p>
+                <p className="text-sm text-muted-foreground">
+                  {loadingCounts ? "Loading..." : `${tier.count} Active Influencer${tier.count !== 1 ? 's' : ''}`}
+                </p>
               </div>
             ))}
           </div>

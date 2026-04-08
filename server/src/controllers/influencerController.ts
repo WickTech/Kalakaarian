@@ -3,6 +3,38 @@ import InfluencerProfile from '../models/InfluencerProfile';
 import User from '../models/User';
 import { AuthRequest } from '../middleware/auth';
 
+export const getTierCounts = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const counts = await InfluencerProfile.aggregate([
+      {
+        $group: {
+          _id: '$tier',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const tierCounts: Record<string, number> = {
+      nano: 0,
+      micro: 0,
+      mid: 0,
+      macro: 0,
+      mega: 0,
+    };
+
+    counts.forEach((item) => {
+      if (item._id && tierCounts.hasOwnProperty(item._id)) {
+        tierCounts[item._id] = item.count;
+      }
+    });
+
+    res.json(tierCounts);
+  } catch (error) {
+    console.error('Get tier counts error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 export const getInfluencers = async (req: Request, res: Response): Promise<void> => {
   try {
     const { tier, city, genre, platform, page = 1, limit = 20 } = req.query;

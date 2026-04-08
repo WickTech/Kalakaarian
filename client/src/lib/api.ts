@@ -309,6 +309,10 @@ export const api = {
     return request<InfluencerProfile[]>(`/api/influencers${query}`);
   },
 
+  getTierCounts: async (): Promise<Record<string, number>> => {
+    return request<Record<string, number>>("/api/influencers/tier-counts");
+  },
+
   getInfluencerById: async (id: string): Promise<InfluencerProfile> => {
     return request<InfluencerProfile>(`/api/influencers/${id}`);
   },
