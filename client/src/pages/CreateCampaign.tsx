@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Calendar as CalendarIcon } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon, Plus, X, Upload } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+
+interface CampaignFile {
+  fileUrl: string;
+  fileName: string;
+  fileType: 'brief' | 'contract' | 'other';
+}
 
 const platforms = ["Instagram", "YouTube", "TikTok", "Multiple"] as const;
 const niches = ["Fashion", "Tech", "Food", "Fitness", "Beauty", "Lifestyle", "Gaming", "Travel"] as const;
@@ -28,13 +34,28 @@ export default function CreateCampaign() {
     platform: "" as typeof platforms[number] | "",
     niche: "" as typeof niches[number] | "",
   });
+  const [files, setFiles] = useState<CampaignFile[]>([]);
+  const [newFile, setNewFile] = useState<CampaignFile>({ fileUrl: "", fileName: "", fileType: "brief" });
+  const [showFileForm, setShowFileForm] = useState(false);
+
+  const handleAddFile = () => {
+    if (newFile.fileUrl && newFile.fileName) {
+      setFiles([...files, newFile]);
+      setNewFile({ fileUrl: "", fileName: "", fileType: "brief" });
+      setShowFileForm(false);
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setFiles(files.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      await api.createCampaign({
+      const campaign = await api.createCampaign({
         title: formData.title,
         description: formData.description,
         budget: Number(formData.budget),
@@ -44,9 +65,13 @@ export default function CreateCampaign() {
         niche: formData.niche,
       });
 
+      for (const file of files) {
+        await api.uploadCampaignFile(campaign._id, file.fileUrl, file.fileName, file.fileType);
+      }
+
       toast({
         title: "Campaign Created",
-        description: "Your campaign has been successfully created.",
+        description: files.length > 0 ? "Your campaign and files have been created." : "Your campaign has been successfully created.",
         variant: "default",
       });
       navigate("/brand/dashboard");
@@ -183,6 +208,90 @@ export default function CreateCampaign() {
                     </Button>
                   ))}
                 </div>
+              </div>
+
+              <div className="space-y-3 border-t border-border pt-4">
+                <div className="flex items-center justify-between">
+                  <Label>Campaign Files (Optional)</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowFileForm(!showFileForm)}
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add File
+                  </Button>
+                </div>
+
+                {showFileForm && (
+                  <Card className="p-4 bg-muted/50">
+                    <div className="space-y-3">
+                      <Input
+                        placeholder="File name (e.g., Campaign Brief)"
+                        value={newFile.fileName}
+                        onChange={(e) => setNewFile({ ...newFile, fileName: e.target.value })}
+                      />
+                      <Input
+                        placeholder="File URL (Google Drive, Dropbox, etc.)"
+                        value={newFile.fileUrl}
+                        onChange={(e) => setNewFile({ ...newFile, fileUrl: e.target.value })}
+                      />
+                      <div className="flex gap-2">
+                        {(['brief', 'contract', 'other'] as const).map((type) => (
+                          <Button
+                            key={type}
+                            type="button"
+                            variant={newFile.fileType === type ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setNewFile({ ...newFile, fileType: type })}
+                          >
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                          </Button>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button onClick={handleAddFile} size="sm" className="flex-1">
+                          Add
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowFileForm(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                )}
+
+                {files.length > 0 && (
+                  <div className="space-y-2">
+                    {files.map((file, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 bg-card rounded-lg border border-border"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Upload className="w-4 h-4 text-blue-500" />
+                          <div>
+                            <p className="text-sm font-medium">{file.fileName}</p>
+                            <p className="text-xs text-muted-foreground capitalize">{file.fileType}</p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(index)}
+                          className="p-1 hover:bg-secondary rounded-md transition-colors text-muted-foreground hover:text-destructive"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>

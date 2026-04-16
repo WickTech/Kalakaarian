@@ -1,20 +1,25 @@
 import { useState, useEffect } from "react";
 
 export function useTheme() {
-  const [dark, setDark] = useState(() => {
-    if (typeof window !== "undefined") {
-      return document.documentElement.classList.contains("dark");
-    }
-    return true;
-  });
+  const [dark, setDark] = useState(true); // Default to dark theme
 
   useEffect(() => {
-    if (dark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [dark]);
+    // Always default to dark theme
+    document.documentElement.classList.add("dark");
+    setDark(true);
+  }, []);
 
-  return { dark, toggle: () => setDark((d) => !d) };
+  const toggle = () => {
+    setDark((d) => {
+      const newDark = !d;
+      if (newDark) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+      return newDark;
+    });
+  };
+
+  return { dark, toggle };
 }

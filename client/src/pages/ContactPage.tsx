@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ArrowLeft, Send, Phone, MessageCircle, Bot, User, Mail, MessageSquare, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigateBack } from "@/hooks/useNavigateBack";
 
 const faqResponses = [
   { keywords: ["price", "cost", "fee", "charge"], response: "Our platform fees are among the lowest in the industry. Brands pay only 5% platform fee. Creators keep 95% of their earnings!" },
@@ -15,8 +16,8 @@ const faqResponses = [
 ];
 
 export default function ContactPage() {
-  const navigate = useNavigate();
   const { toast } = useToast();
+  const { goBack } = useNavigateBack('/');
   
   const [formData, setFormData] = useState({
     name: "",
@@ -33,8 +34,12 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) {
-      toast({ title: "Error", description: "Please fill in all required fields", variant: "destructive" });
+    if (!formData.name || !formData.message) {
+      toast({ title: "Error", description: "Please fill in name and message", variant: "destructive" });
+      return;
+    }
+    if (!formData.email && !formData.phone) {
+      toast({ title: "Error", description: "Please provide either email or phone number", variant: "destructive" });
       return;
     }
     
@@ -43,8 +48,8 @@ export default function ContactPage() {
   };
 
   const handleRequestCall = async () => {
-    if (!formData.phone) {
-      toast({ title: "Error", description: "Please enter your phone number", variant: "destructive" });
+    if (!formData.phone && !formData.email) {
+      toast({ title: "Error", description: "Please provide phone or email first", variant: "destructive" });
       return;
     }
     setRequestingCall(true);
@@ -77,7 +82,7 @@ export default function ContactPage() {
       <header className="border-b border-border bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
-            <button onClick={() => navigate(-1)} className="p-2 border border-border rounded-md hover:bg-secondary transition-colors">
+            <button onClick={goBack} className="p-2 border border-border rounded-md hover:bg-secondary transition-colors">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <Link to="/" className="flex items-center gap-2">

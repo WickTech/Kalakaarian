@@ -10,6 +10,13 @@ export interface IUser {
   role: 'brand' | 'influencer';
   name: string;
   isPhoneLogin?: boolean;
+  whatsappNotifications?: {
+    enabled: boolean;
+    campaigns: boolean;
+    proposals: boolean;
+    messages: boolean;
+    payments: boolean;
+  };
   createdAt?: Date;
   updatedAt?: Date;
 }

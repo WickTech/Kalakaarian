@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ArrowLeft, Send, User, Loader2, Check, CheckCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { useNavigateBack } from "@/hooks/useNavigateBack";
 
 interface Message {
   _id: string;
@@ -36,7 +37,7 @@ interface Conversation {
 
 export default function Messages() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const { goBack } = useNavigateBack(user?.role === 'brand' ? '/brand-dashboard' : '/influencer-dashboard');
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -122,7 +123,7 @@ export default function Messages() {
     <main className="flex h-screen flex-col bg-background">
       <header className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button variant="ghost" size="icon" onClick={goBack}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-xl font-bold">Messages</h1>

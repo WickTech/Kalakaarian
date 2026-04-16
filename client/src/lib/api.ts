@@ -310,15 +310,20 @@ export const api = {
     if (filters?.minFollowers) params.append("minFollowers", filters.minFollowers.toString());
     if (filters?.maxFollowers) params.append("maxFollowers", filters.maxFollowers.toString());
     const query = params.toString() ? `?${params.toString()}` : "";
-    return request<InfluencerProfile[]>(`/api/influencers${query}`);
+    const response = await request<{ influencers: InfluencerProfile[]; pagination: any }>(`/api/influencers${query}`);
+    return response.influencers || response as unknown as InfluencerProfile[];
   },
 
   getTierCounts: async (): Promise<Record<string, number>> => {
     return request<Record<string, number>>("/api/influencers/tier-counts");
   },
 
-  getInfluencerById: async (id: string): Promise<InfluencerProfile> => {
-    return request<InfluencerProfile>(`/api/influencers/${id}`);
+  getInfluencerById: async (id: string): Promise<any> => {
+    const response = await request<{ influencer: InfluencerProfile } | InfluencerProfile>(`/api/influencers/${id}`);
+    if (response && typeof response === 'object' && 'influencer' in response) {
+      return (response as { influencer: InfluencerProfile }).influencer;
+    }
+    return response;
   },
 
   sendMessage: async (receiverId: string, content: string): Promise<any> => {
@@ -453,6 +458,53 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ platform, handle }),
     });
+  },
+
+  // WhatsApp
+  getWhatsAppStatus: async (): Promise<any> => {
+    return request<any>('/api/whatsapp/status');
+  },
+
+  updateWhatsAppPreferences: async (preferences: {
+    enabled?: boolean;
+    campaigns?: boolean;
+    proposals?: boolean;
+    messages?: boolean;
+    payments?: boolean;
+  }): Promise<void> => {
+    return request<void>('/api/whatsapp/preferences', {
+      method: 'PUT',
+      body: JSON.stringify(preferences),
+    });
+  },
+
+  sendWhatsAppTest: async (): Promise<void> => {
+    return request<void>('/api/whatsapp/send-test', {
+      method: 'POST',
+    });
+  },
+
+  // Social Stats
+  getSocialStats: async (userId: string): Promise<any> => {
+    return request<any>(`/api/social/stats/${userId}`);
+  },
+
+  getInstagramPosts: async (handle: string, limit?: number): Promise<any[]> => {
+    const params = limit ? `?limit=${limit}` : '';
+    return request<any[]>(`/api/social/instagram/${handle}/posts${params}`);
+  },
+
+  getYouTubeVideos: async (channelId: string, limit?: number): Promise<any[]> => {
+    const params = limit ? `?limit=${limit}` : '';
+    return request<any[]>(`/api/social/youtube/${channelId}/videos${params}`);
+  },
+
+  getInstagramStats: async (handle: string): Promise<any> => {
+    return request<any>(`/api/social/instagram/stats/${handle}`);
+  },
+
+  getYouTubeStats: async (channelId: string): Promise<any> => {
+    return request<any>(`/api/social/youtube/stats/${channelId}`);
   },
 };
 

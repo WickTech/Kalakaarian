@@ -14,6 +14,13 @@ const userSchema = new Schema(
     role: { type: String, enum: ['brand', 'influencer'], required: true, index: true },
     name: { type: String, required: true },
     isPhoneLogin: { type: Boolean, default: false },
+    whatsappNotifications: {
+      enabled: { type: Boolean, default: false },
+      campaigns: { type: Boolean, default: true },
+      proposals: { type: Boolean, default: true },
+      messages: { type: Boolean, default: true },
+      payments: { type: Boolean, default: true },
+    },
   },
   { timestamps: true }
 );

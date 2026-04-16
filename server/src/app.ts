@@ -16,6 +16,8 @@ import referralRoutes from './routes/referrals';
 import campaignFilesRoutes from './routes/campaignFiles';
 import notificationRoutes from './routes/notifications';
 import campaignWorkflowRoutes from './routes/campaignWorkflow';
+import whatsappRoutes from './routes/whatsapp';
+import socialStatsRoutes from './routes/socialStats';
 
 dotenv.config();
 
@@ -99,6 +101,8 @@ app.use('/api/referrals', referralRoutes);
 app.use('/api/campaigns', campaignFilesRoutes);
 app.use('/api/campaigns', campaignWorkflowRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/whatsapp', whatsappRoutes);
+app.use('/api/social', socialStatsRoutes);
 
 const handler = serverless(app);
 export { handler };

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigateBack } from '@/hooks/useNavigateBack';
 import { ProfileHeader } from '@/components/ProfileHeader';
 import { AnalyticsCard } from '@/components/AnalyticsCard';
 import { MembershipUpgradeCard } from '@/components/MembershipBadge';
@@ -15,13 +16,14 @@ export default function InfluencerProfile() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const { goBack } = useNavigateBack('/marketplace');
 
   const [profile, setProfile] = useState<any>(null);
   const [membership, setMembership] = useState<{ tier: string }>({ tier: 'regular' });
-  const [analytics, setAnalytics] = useState({ ER: 0, avgViews: 0, cpv: 0, fakeFollowersPercent: 0 });
+  const [analytics, setAnalytics] = useState<any>(null);
   const [videos, setVideos] = useState<any[]>([]);
   const [referralStats, setReferralStats] = useState({ code: null as string | null, usedCount: 0, goldUnlocked: false, silverUnlocked: false });
+  const [socialStats, setSocialStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const isOwnProfile = user?._id === id || user?.role === 'influencer';
@@ -29,24 +31,21 @@ export default function InfluencerProfile() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [profileData, membershipData, videosData, referralData] = await Promise.all([
-          api.getInfluencerById(id!),
+        const profileData = await api.getInfluencerById(id!);
+        
+        const [membershipData, videosData, referralData, socialStatsData] = await Promise.all([
           isOwnProfile ? api.getMembershipStatus() : Promise.resolve({ tier: 'regular' }),
           isOwnProfile ? api.getMyVideos() : Promise.resolve([]),
           isOwnProfile ? api.getReferralStats() : Promise.resolve({ code: null, usedCount: 0, goldUnlocked: false, silverUnlocked: false }),
+          api.getSocialStats(profileData?.userId || id!),
         ]);
 
         setProfile(profileData);
         setMembership(membershipData);
         setVideos(videosData);
         setReferralStats(referralData);
-
-        setAnalytics({
-          ER: Math.floor(Math.random() * 8) + 2,
-          avgViews: Math.floor(Math.random() * 50000) + 5000,
-          cpv: parseFloat((Math.random() * 0.5 + 0.1).toFixed(2)),
-          fakeFollowersPercent: Math.floor(Math.random() * 15) + 5,
-        });
+        setSocialStats(socialStatsData);
+        setAnalytics(socialStatsData?.analytics || null);
       } catch (err) {
         toast({ title: 'Error', description: 'Failed to load profile', variant: 'destructive' });
       } finally {
@@ -130,7 +129,7 @@ export default function InfluencerProfile() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border px-4 py-3 flex items-center gap-4">
-        <button onClick={() => navigate(-1)} className="p-2 border border-border rounded-md hover:bg-secondary">
+        <button onClick={goBack} className="p-2 border border-border rounded-md hover:bg-secondary">
           <ArrowLeft className="w-4 h-4" />
         </button>
         <h1 className="text-xl font-bold">Profile</h1>
@@ -153,10 +152,28 @@ export default function InfluencerProfile() {
         <div>
           <h2 className="text-lg font-semibold mb-4">Analytics</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <AnalyticsCard title="Engagement Rate" value={`${analytics.ER}%`} icon="er" />
-            <AnalyticsCard title="Avg Views" value={analytics.avgViews.toLocaleString()} icon="views" />
-            <AnalyticsCard title="Cost Per View" value={`₹${analytics.cpv}`} icon="cpv" />
-            <AnalyticsCard title="Fake Followers" value={`${analytics.fakeFollowersPercent}%`} subtitle="Estimated" icon="fake" />
+            <AnalyticsCard 
+              title="Engagement Rate" 
+              value={`${analytics?.engagementRate || 0}%`} 
+              icon="er" 
+              subtitle={analytics?.source ? `Based on ${analytics.source}` : undefined}
+            />
+            <AnalyticsCard 
+              title="Avg Views" 
+              value={(analytics?.avgViews || 0).toLocaleString()} 
+              icon="views" 
+            />
+            <AnalyticsCard 
+              title="Total Followers" 
+              value={(analytics?.totalFollowers || 0).toLocaleString()} 
+              icon="fake" 
+            />
+            <AnalyticsCard 
+              title="Reach Estimate" 
+              value={(analytics?.reachEstimate || 0).toLocaleString()} 
+              icon="views" 
+              subtitle={analytics?.authenticityScore ? `Authenticity: ${analytics.authenticityScore}%` : undefined}
+            />
           </div>
         </div>
 
@@ -164,6 +181,7 @@ export default function InfluencerProfile() {
           <h2 className="text-lg font-semibold mb-4">Social Media</h2>
           <SocialConnect
             socialHandles={profile.socialHandles || {}}
+            stats={socialStats}
             isOwnProfile={isOwnProfile}
             onConnect={handleSocialConnect}
           />

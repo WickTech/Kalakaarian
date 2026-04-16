@@ -118,12 +118,14 @@ export default function Landing({ dark, toggleTheme }: LandingProps) {
             India&apos;s First AI-Powered Marketplace of Kalakaar (Creators)
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-black tracking-tight">
+          <h1 className="text-4xl md:text-6xl font-black tracking-tight" style={{ fontFamily: "Oswald, sans-serif" }}>
             <span className="bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent">
               Influence. Impact.
             </span>
             <br />
-            <span className="text-foreground">Growth.</span>
+            <span className="bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent">
+              Growth.
+            </span>
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -212,7 +214,7 @@ export default function Landing({ dark, toggleTheme }: LandingProps) {
             Have questions? We'd love to hear from you. Reach out to us and we'll get back to you soon.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/role-select">
+            <Link to="/contact">
               <Button size="lg" variant="secondary" className="gap-2">
                 Get in Touch
                 <ArrowRight className="h-4 w-4" />

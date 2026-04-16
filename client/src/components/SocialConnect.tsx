@@ -7,15 +7,21 @@ interface SocialStats {
   instagram?: {
     handle: string;
     followers: number;
+    following?: number;
     posts: number;
     avgLikes: number;
     avgComments: number;
+    engagementRate?: number;
+    isMock?: boolean;
   };
   youtube?: {
     handle: string;
+    channelId: string;
     subscribers: number;
     videos: number;
     totalViews: number;
+    avgViews: number;
+    isMock?: boolean;
   };
 }
 
