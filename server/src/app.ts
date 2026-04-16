@@ -10,6 +10,9 @@ import proposalRoutes from './routes/proposals';
 import cartRoutes from './routes/cart';
 import messageRoutes from './routes/messages';
 import analyticsRoutes from './routes/analytics';
+import membershipRoutes from './routes/membership';
+import videoRoutes from './routes/videos';
+import referralRoutes from './routes/referrals';
 
 dotenv.config();
 
@@ -87,6 +90,9 @@ app.use('/api/proposals', proposalRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/membership', membershipRoutes);
+app.use('/api/videos', videoRoutes);
+app.use('/api/referrals', referralRoutes);
 
 const handler = serverless(app);
 export { handler };
