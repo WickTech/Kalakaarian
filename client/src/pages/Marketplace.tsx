@@ -4,7 +4,7 @@ import { ArrowLeft, ChevronDown, ShoppingCart, Instagram, Youtube } from "lucide
 import { api, InfluencerProfile } from "@/lib/api";
 import { InfluencerCard } from "@/components/InfluencerCard";
 import { Influencer } from "@/lib/store";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { NotificationBell } from "@/components/NotificationBell";
 
 interface MarketplaceProps {
   dark: boolean;
@@ -222,6 +222,7 @@ export default function Marketplace({ dark, toggleTheme, cartCount, onCartOpen, 
           <h1 className="text-xl font-bold brand-text">Marketplace</h1>
         </div>
         <div className="flex items-center gap-2">
+          <NotificationBell />
           <button onClick={onCartOpen} className="relative p-2 border border-border rounded-md hover:bg-secondary transition-colors">
             <ShoppingCart className="w-5 h-5" />
             {cartCount > 0 && (

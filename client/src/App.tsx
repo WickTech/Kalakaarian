@@ -6,6 +6,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useCart } from "@/hooks/useCart";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { CartDrawer } from "@/components/CartDrawer";
+import { NotificationBell } from "@/components/NotificationBell";
 import Landing from "./pages/Landing";
 import Marketplace from "./pages/Marketplace";
 import NotFound from "./pages/NotFound";
