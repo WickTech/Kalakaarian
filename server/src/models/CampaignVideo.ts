@@ -25,4 +25,6 @@ const campaignVideoSchema = new Schema(
   { timestamps: true }
 );
 
+campaignVideoSchema.index({ campaignId: 1, influencerId: 1 });
+
 export default mongoose.model<ICampaignVideoDocument>('CampaignVideo', campaignVideoSchema);

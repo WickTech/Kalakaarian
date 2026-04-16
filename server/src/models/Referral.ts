@@ -6,7 +6,6 @@ export interface IReferral {
   referralCode: string;
   rewardType: 'gold_year' | 'silver_free' | null;
   used: boolean;
-  createdAt: Date;
 }
 
 interface IReferralDocument extends IReferral, Document {}
@@ -16,7 +15,7 @@ const referralSchema = new Schema(
     referrerId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     referredId: { type: Schema.Types.ObjectId, ref: 'User' },
     referralCode: { type: String, required: true, unique: true },
-    rewardType: { type: String, enum: ['gold_year', 'silver_free', null], default: null },
+    rewardType: { type: String, enum: ['gold_year', 'silver_free'], default: null },
     used: { type: Boolean, default: false },
   },
   { timestamps: true }
