@@ -24,16 +24,19 @@ export default function InfluencerDashboard() {
   const [profile, setProfile] = useState<InfluencerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [analytics, setAnalytics] = useState<any>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [proposalsData, profileData] = await Promise.all([
+        const [proposalsData, profileData, analyticsData] = await Promise.all([
           api.getProposals().catch(() => []),
           api.getInfluencerProfile().catch(() => null),
+          api.getInfluencerAnalytics().catch(() => null),
         ]);
         setProposals(proposalsData);
         setProfile(profileData);
+        setAnalytics(analyticsData);
       } catch (err) {
         setError("Failed to load data");
         console.error(err);
@@ -47,7 +50,7 @@ export default function InfluencerDashboard() {
   const stats = {
     total: proposals.length,
     accepted: proposals.filter((p) => p.status === "accepted").length,
-    earnings: proposals
+    earnings: analytics?.earnings || proposals
       .filter((p) => p.status === "accepted")
       .reduce((sum, p) => sum + p.bidAmount, 0),
   };

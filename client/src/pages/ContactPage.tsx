@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Send, Phone, MessageCircle, Bot, User, Mail, MessageSquare, CheckCircle } from "lucide-react";
+import { ArrowLeft, Send, Phone, MessageCircle, Bot, User, Mail, MessageSquare, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigateBack } from "@/hooks/useNavigateBack";
+import { api } from "@/lib/api";
 
 const faqResponses = [
   { keywords: ["price", "cost", "fee", "charge"], response: "Our platform fees are among the lowest in the industry. Brands pay only 5% platform fee. Creators keep 95% of their earnings!" },
@@ -18,6 +19,7 @@ const faqResponses = [
 export default function ContactPage() {
   const { toast } = useToast();
   const { goBack } = useNavigateBack('/');
+  const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -43,8 +45,22 @@ export default function ContactPage() {
       return;
     }
     
-    setSubmitted(true);
-    toast({ title: "Success", description: "Your message has been sent! We'll get back to you soon." });
+    setLoading(true);
+    try {
+      await api.submitContact({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+        type: 'general',
+      });
+      setSubmitted(true);
+      toast({ title: "Success", description: "Your message has been sent! We'll get back to you soon." });
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to send message. Please try again.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRequestCall = async () => {
@@ -53,7 +69,18 @@ export default function ContactPage() {
       return;
     }
     setRequestingCall(true);
-    toast({ title: "Success", description: "Callback requested! Our team will call you within 24 hours." });
+    try {
+      await api.submitContact({
+        name: formData.name || "Anonymous",
+        email: formData.email,
+        phone: formData.phone,
+        message: "Callback requested",
+        type: 'callback',
+      });
+      toast({ title: "Success", description: "Callback requested! Our team will call you within 24 hours." });
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to request callback.", variant: "destructive" });
+    }
   };
 
   const handleChatSubmit = (e: React.FormEvent) => {
@@ -158,8 +185,12 @@ export default function ContactPage() {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full">
-                    <Send className="w-4 h-4 mr-2" />
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4 mr-2" />
+                    )}
                     Send Message
                   </Button>
                 </form>

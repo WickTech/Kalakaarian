@@ -18,6 +18,7 @@ import notificationRoutes from './routes/notifications';
 import campaignWorkflowRoutes from './routes/campaignWorkflow';
 import whatsappRoutes from './routes/whatsapp';
 import socialStatsRoutes from './routes/socialStats';
+import contactRoutes from './routes/contact';
 
 dotenv.config();
 
@@ -116,6 +117,7 @@ app.use('/api/campaigns', campaignWorkflowRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 app.use('/api/social', socialStatsRoutes);
+app.use('/api/contact', contactRoutes);
 
 const handler = serverless(app);
 export { handler };

@@ -355,6 +355,37 @@ export const api = {
     return request<any>("/api/analytics/influencer");
   },
 
+  // Cart
+  getCart: async (): Promise<any> => {
+    return request<any>("/api/cart");
+  },
+
+  addToCart: async (influencerId: string, price: number, campaignId?: string): Promise<any> => {
+    return request<any>("/api/cart/add", {
+      method: "POST",
+      body: JSON.stringify({ influencerId, price, campaignId }),
+    });
+  },
+
+  removeFromCart: async (influencerId: string): Promise<any> => {
+    return request<any>(`/api/cart/remove/${influencerId}`, {
+      method: "DELETE",
+    });
+  },
+
+  clearCart: async (): Promise<any> => {
+    return request<any>("/api/cart/clear", {
+      method: "DELETE",
+    });
+  },
+
+  updateCartItem: async (influencerId: string, campaignId: string, price: number): Promise<any> => {
+    return request<any>(`/api/cart/update/${influencerId}`, {
+      method: "PUT",
+      body: JSON.stringify({ campaignId, price }),
+    });
+  },
+
   getMembershipStatus: async (): Promise<{ tier: string }> => {
     return request<{ tier: string }>('/api/membership/status');
   },
@@ -505,6 +536,20 @@ export const api = {
 
   getYouTubeStats: async (channelId: string): Promise<any> => {
     return request<any>(`/api/social/youtube/stats/${channelId}`);
+  },
+
+  // Contact
+  submitContact: async (data: {
+    name: string;
+    email?: string;
+    phone?: string;
+    message: string;
+    type?: 'general' | 'callback' | 'business';
+  }): Promise<any> => {
+    return request<any>('/api/contact', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   },
 };
 

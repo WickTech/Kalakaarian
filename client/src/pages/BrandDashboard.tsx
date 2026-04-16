@@ -39,9 +39,11 @@ export default function BrandDashboard() {
   const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
   const [workflowData, setWorkflowData] = useState<Record<string, any>>({});
   const [filesData, setFilesData] = useState<Record<string, any[]>>({});
+  const [analytics, setAnalytics] = useState<any>(null);
 
   useEffect(() => {
     fetchCampaigns();
+    fetchAnalytics();
   }, []);
 
   const fetchCampaigns = async () => {
@@ -53,6 +55,15 @@ export default function BrandDashboard() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAnalytics = async () => {
+    try {
+      const data = await api.getBrandAnalytics();
+      setAnalytics(data);
+    } catch (err) {
+      console.error("Failed to load analytics:", err);
     }
   };
 
@@ -201,7 +212,7 @@ export default function BrandDashboard() {
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Campaigns</CardTitle>
@@ -222,11 +233,23 @@ export default function BrandDashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Completed</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Total Proposals</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.completed}</div>
+              <div className="text-2xl font-bold">{analytics?.proposals?.total || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                {analytics?.proposals?.pending || 0} pending, {analytics?.proposals?.accepted || 0} accepted
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">₹{((analytics?.spend || 0) / 1000).toFixed(0)}K</div>
             </CardContent>
           </Card>
         </div>
