@@ -427,6 +427,26 @@ export const api = {
       body: JSON.stringify({ status, feedback }),
     });
   },
+
+  getNotifications: async (): Promise<any[]> => {
+    return request<any[]>('/api/notifications');
+  },
+
+  getUnreadNotificationCount: async (): Promise<{ count: number }> => {
+    return request<{ count: number }>('/api/notifications/unread-count');
+  },
+
+  markNotificationRead: async (id: string): Promise<void> => {
+    return request<void>(`/api/notifications/${id}/read`, { method: 'PUT' });
+  },
+
+  markAllNotificationsRead: async (): Promise<void> => {
+    return request<void>('/api/notifications/read-all', { method: 'PUT' });
+  },
+
+  deleteNotification: async (id: string): Promise<void> => {
+    return request<void>(`/api/notifications/${id}`, { method: 'DELETE' });
+  },
 };
 
 export { ApiError };
