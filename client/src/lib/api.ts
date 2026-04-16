@@ -447,6 +447,13 @@ export const api = {
   deleteNotification: async (id: string): Promise<void> => {
     return request<void>(`/api/notifications/${id}`, { method: 'DELETE' });
   },
+
+  connectSocialMedia: async (platform: 'instagram' | 'youtube', handle: string): Promise<any> => {
+    return request<any>('/api/influencers/connect-social', {
+      method: 'POST',
+      body: JSON.stringify({ platform, handle }),
+    });
+  },
 };
 
 export { ApiError };

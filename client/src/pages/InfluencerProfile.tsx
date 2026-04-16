@@ -9,6 +9,7 @@ import { AnalyticsCard } from '@/components/AnalyticsCard';
 import { MembershipUpgradeCard } from '@/components/MembershipBadge';
 import { VideoGrid } from '@/components/VideoGrid';
 import { ReferralCard } from '@/components/ReferralCard';
+import { SocialConnect } from '@/components/SocialConnect';
 
 export default function InfluencerProfile() {
   const { id } = useParams<{ id: string }>();
@@ -99,6 +100,16 @@ export default function InfluencerProfile() {
     }
   };
 
+  const handleSocialConnect = async (platform: 'instagram' | 'youtube', handle: string) => {
+    try {
+      const result = await api.connectSocialMedia(platform, handle);
+      setProfile({ ...profile, socialHandles: result.socialHandles });
+      toast({ title: 'Success', description: `${platform} connected successfully!` });
+    } catch (err) {
+      toast({ title: 'Error', description: 'Failed to connect social media', variant: 'destructive' });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -147,6 +158,15 @@ export default function InfluencerProfile() {
             <AnalyticsCard title="Cost Per View" value={`₹${analytics.cpv}`} icon="cpv" />
             <AnalyticsCard title="Fake Followers" value={`${analytics.fakeFollowersPercent}%`} subtitle="Estimated" icon="fake" />
           </div>
+        </div>
+
+        <div>
+          <h2 className="text-lg font-semibold mb-4">Social Media</h2>
+          <SocialConnect
+            socialHandles={profile.socialHandles || {}}
+            isOwnProfile={isOwnProfile}
+            onConnect={handleSocialConnect}
+          />
         </div>
 
         {isOwnProfile && (

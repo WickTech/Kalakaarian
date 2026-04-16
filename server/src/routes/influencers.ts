@@ -30,4 +30,25 @@ router.put('/:id/image', auth, async (req: Request, res: Response) => {
   }
 });
 
+router.post('/connect-social', auth, async (req: Request, res: Response) => {
+  try {
+    const { platform, handle } = req.body;
+    const userId = (req as any).userId;
+    
+    const update = platform === 'instagram' 
+      ? { 'socialHandles.instagram': handle }
+      : { 'socialHandles.youtube': handle };
+    
+    const profile = await InfluencerProfile.findOneAndUpdate(
+      { userId },
+      { $set: update },
+      { new: true, upsert: true }
+    );
+    
+    res.json({ socialHandles: profile.socialHandles });
+  } catch (error) {
+    res.status(500).json({ message: 'Error connecting social media' });
+  }
+});
+
 export default router;
