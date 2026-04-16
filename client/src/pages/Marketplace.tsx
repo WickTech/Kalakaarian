@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, ChevronDown, ShoppingCart, Instagram, Youtube } from "lucide-react";
 import { api, InfluencerProfile } from "@/lib/api";
 import { InfluencerCard } from "@/components/InfluencerCard";
@@ -217,18 +217,36 @@ export default function Marketplace({ dark, toggleTheme, cartCount, onCartOpen, 
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : paginated.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 gap-2">
-            <p className="text-muted-foreground">No influencers found matching your filters.</p>
-            <button 
-              onClick={() => { 
-                setTier("all"); setCity("All"); setGenre("All"); 
-                setFollowersMin(""); setFollowersMax(""); setMaxBudget("");
-                setGender("All"); setCampaignType("All"); setPage(1);
-              }}
-              className="text-sm text-primary hover:underline"
-            >
-              Clear filters
-            </button>
+          <div className="flex flex-col items-center justify-center h-64 gap-4">
+            <p className="text-muted-foreground text-center">
+              {influencers.length === 0 
+                ? "No influencers available yet." 
+                : "No influencers found matching your filters."}
+            </p>
+            {influencers.length === 0 ? (
+              <div className="text-center space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  Be the first to join as an influencer!
+                </p>
+                <Link 
+                  to="/register/influencer"
+                  className="inline-block px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+                >
+                  Register as Influencer
+                </Link>
+              </div>
+            ) : (
+              <button 
+                onClick={() => { 
+                  setTier("all"); setCity("All"); setGenre("All"); 
+                  setFollowersMin(""); setFollowersMax(""); setMaxBudget("");
+                  setGender("All"); setCampaignType("All"); setPage(1);
+                }}
+                className="text-sm text-primary hover:underline"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
