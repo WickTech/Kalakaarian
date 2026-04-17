@@ -1,8 +1,9 @@
 {
+  "type": "module",
   "builds": [
     {
       "src": "server/dist/app.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node@3"
     }
   ]
 }
