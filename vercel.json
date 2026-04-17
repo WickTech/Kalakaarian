@@ -1,5 +1,8 @@
 {
   "framework": "node",
+  "buildCommand": "cd server && npm install && npm run build",
+  "installCommand": "cd server && npm install",
+  "outputDirectory": "server/dist",
   "builds": [
     {
       "src": "server/dist/app.js",
