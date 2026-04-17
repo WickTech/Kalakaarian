@@ -1,5 +1,4 @@
 {
-  "version": 2,
   "builds": [
     {
       "src": "server/src/app.ts",
@@ -7,13 +6,7 @@
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "server/src/app.ts"
-    },
-    {
-      "src": "/health",
-      "dest": "server/src/app.ts"
-    }
+    { "src": "/api/(.*)", "dest": "server/src/app.ts" },
+    { "src": "/health", "dest": "server/src/app.ts" }
   ]
 }
