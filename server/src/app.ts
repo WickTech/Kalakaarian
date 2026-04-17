@@ -36,9 +36,10 @@ let isConnected = false;
 
 app.use(async (req, res, next) => {
   if (req.path === '/health') return next();
-  if (!isConnected && process.env.MONGODB_URI) {
+  const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+  if (!isConnected && mongoUri) {
     try {
-      await mongoose.connect(process.env.MONGODB_URI!, {
+      await mongoose.connect(mongoUri, {
         serverSelectionTimeoutMS: 5000,
         connectTimeoutMS: 5000,
       });
