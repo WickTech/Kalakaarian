@@ -1,6 +1,18 @@
 {
-  "buildCommand": "cd server && npm install && npm run build",
-  "installCommand": "cd server && npm install",
-  "framework": null,
-  "outputDirectory": "server/dist"
+  "builds": [
+    {
+      "src": "server/src/(.*)",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server/dist/app.js"
+    },
+    {
+      "src": "/health",
+      "dest": "server/dist/app.js"
+    }
+  ]
 }
