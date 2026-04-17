@@ -1,20 +1,5 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "builds": [
-    {
-      "use": "@vercel/node",
-      "src": "server/src/app.ts"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      "dest": "/server/src/app.ts"
-    },
-    {
-      "src": "/health",
-      "dest": "/server/src/app.ts"
-    }
-  ]
+  "installCommand": "cd server && npm install --prefer-offline",
+  "buildCommand": "cd server && npm run build",
+  "framework": null
 }
