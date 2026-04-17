@@ -1,6 +1,6 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
-  "framework": "node"
+  "buildCommand": "cd server && npm install && npm run build",
+  "installCommand": "cd server && npm install",
+  "framework": null,
+  "outputDirectory": "server/dist"
 }
