@@ -30,17 +30,24 @@ const connectDB = async (): Promise<void> => {
   
   if (connectionPromise) return connectionPromise;
   
+  if (!process.env.MONGODB_URI) {
+    console.log('No MONGODB_URI, skipping DB');
+    return;
+  }
+  
   connectionPromise = (async () => {
     try {
       await mongoose.connect(process.env.MONGODB_URI!, {
-        serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 45000,
+        serverSelectionTimeoutMS: 3000,
+        connectTimeoutMS: 3000,
+        socketTimeoutMS: 10000,
       });
       isConnected = true;
       console.log('MongoDB connected');
     } catch (error) {
       console.error('MongoDB connection error:', error);
       connectionPromise = null;
+      isConnected = false;
     }
   })();
   
@@ -74,18 +81,15 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+let dbConnecting = false;
+
 app.use(async (req, res, next) => {
-  if (!process.env.MONGODB_URI) {
-    console.log('No MONGODB_URI, skipping DB connection');
+  if (req.path === '/health' || req.path === '/debug/cors') {
     return next();
   }
-  try {
-    await Promise.race([
-      connectDB(),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('DB connection timeout')), 3000))
-    ]);
-  } catch (e) {
-    console.error('DB connection timed out, continuing anyway');
+  if (process.env.MONGODB_URI && !isConnected && !dbConnecting) {
+    dbConnecting = true;
+    connectDB().then(() => { dbConnecting = false; }).catch(() => { dbConnecting = false; });
   }
   next();
 });
@@ -120,4 +124,5 @@ app.use('/api/social', socialStatsRoutes);
 app.use('/api/contact', contactRoutes);
 
 const handler = serverless(app);
+
 export { handler };
