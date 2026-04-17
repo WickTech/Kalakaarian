@@ -1,5 +1,5 @@
 {
-  "framework": "node",
+  "version": 2,
   "builds": [
     {
       "src": "server/dist/app.js",
