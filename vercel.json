@@ -1,12 +1,12 @@
 {
+  "framework": "node",
   "builds": [
     {
-      "src": "server/src/app.ts",
+      "src": "server/dist/app.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "server/src/app.ts" },
-    { "src": "/health", "dest": "server/src/app.ts" }
+    { "src": "/(.*)", "dest": "/server/dist/app.js" }
   ]
 }
