@@ -1,282 +1,228 @@
-import { FormEvent, useMemo, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { InfluencerNiche } from "@/data/mockInfluencers";
 
-const DEFAULT_AVATAR = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default';
-
-const NICHE_OPTIONS: InfluencerNiche[] = [
-  "Fashion",
-  "Beauty",
-  "Tech",
-  "Travel",
-  "Food",
-  "Fitness",
-  "Gaming",
-  "Lifestyle",
-  "Finance",
-  "Other",
+const GENRES = [
+  "Food", "Tech", "Fashion", "Travel", "Fitness",
+  "Beauty", "Gaming", "Lifestyle", "Finance", "Education", "Comedy", "Music",
 ];
+const COUNTRIES = ["India", "UAE", "USA", "UK", "Singapore"];
+const DEFAULT_AVATAR = "https://api.dicebear.com/7.x/avataaars/svg?seed=default";
 
-interface InfluencerRegisterFormData {
-  fullName: string;
-  email: string;
-  phone: string;
-  password: string;
-  bio: string;
-  instagramHandle: string;
-  youtubeUrl: string;
-  niches: InfluencerNiche[];
-  profileImage: string;
-}
+const STEPS = ["Basic Info", "Genre", "Platforms", "Rates", "Location"];
 
-interface InfluencerErrors {
-  fullName?: string;
-  email?: string;
-  phone?: string;
-  password?: string;
-  bio?: string;
-  social?: string;
-  niches?: string;
+interface InfluencerForm {
+  name: string; email: string; phone: string; password: string;
+  genres: string[]; instagram: string; youtube: string;
+  reelRate: string; storyRate: string; longVideoRate: string; shortsRate: string; bio: string;
+  city: string; state: string; country: string;
 }
 
 export default function InfluencerRegisterPage() {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const { register } = useAuth();
-  const [errors, setErrors] = useState<InfluencerErrors>({});
+  const [step, setStep] = useState(0);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [profilePreview, setProfilePreview] = useState<string | null>(null);
-  const [form, setForm] = useState<InfluencerRegisterFormData>({
-    fullName: "",
-    email: "",
-    phone: "",
-    password: "",
-    bio: "",
-    instagramHandle: "",
-    youtubeUrl: "",
-    niches: [],
-    profileImage: "",
+  const [form, setForm] = useState<InfluencerForm>({
+    name: "", email: "", phone: "", password: "",
+    genres: [], instagram: "", youtube: "",
+    reelRate: "", storyRate: "", longVideoRate: "", shortsRate: "", bio: "",
+    city: "", state: "", country: "India",
   });
 
-  const bioCount = useMemo(() => form.bio.length, [form.bio]);
+  const set = (key: keyof InfluencerForm) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+      setForm((p) => ({ ...p, [key]: e.target.value }));
 
-  const toggleNiche = (niche: InfluencerNiche) => {
-    setForm((prev) => ({
-      ...prev,
-      niches: prev.niches.includes(niche) ? prev.niches.filter((item) => item !== niche) : [...prev.niches, niche],
+  const toggleGenre = (g: string) =>
+    setForm((p) => ({
+      ...p,
+      genres: p.genres.includes(g) ? p.genres.filter((x) => x !== g) : [...p.genres, g],
     }));
-  };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setForm((prev) => ({ ...prev, profileImage: reader.result as string }));
-        setProfilePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const validate = (): boolean => {
+    if (step === 0 && (!form.name || !form.email || !form.phone || !form.password)) {
+      setError("All fields are required."); return false;
     }
+    if (step === 1 && form.genres.length === 0) {
+      setError("Select at least one genre."); return false;
+    }
+    if (step === 2 && !form.instagram && !form.youtube) {
+      setError("At least one platform handle is required."); return false;
+    }
+    return true;
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const next = () => { if (validate()) { setError(""); setStep((s) => s + 1); } };
+  const back = () => { setError(""); setStep((s) => s - 1); };
 
-    const nextErrors: InfluencerErrors = {};
-    if (!form.fullName.trim()) nextErrors.fullName = "Full Name is required.";
-    if (!form.email.trim()) nextErrors.email = "Email is required.";
-    if (!form.phone.trim()) nextErrors.phone = "Phone number is required.";
-    if (!form.password.trim()) nextErrors.password = "Password is required.";
-    if (!form.bio.trim()) nextErrors.bio = "Bio is required.";
-    if (form.bio.length > 300) nextErrors.bio = "Bio cannot exceed 300 characters.";
-    if (form.niches.length === 0) nextErrors.niches = "Please select at least one niche.";
-
-    const hasSocial = [form.instagramHandle, form.youtubeUrl].some((value) => value.trim().length > 0);
-    if (!hasSocial) nextErrors.social = "At least one social media handle is required.";
-
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
-
+  const handleSubmit = async () => {
+    if (!form.city || !form.country) { setError("City and country are required."); return; }
     setLoading(true);
     try {
       await register({
-        email: form.email,
-        phone: form.phone,
-        password: form.password,
-        name: form.fullName,
+        email: form.email, phone: form.phone, password: form.password, name: form.name,
         role: "influencer",
-        niches: form.niches,
+        niches: form.genres as never[],
         platform: [
-          ...(form.instagramHandle ? ["instagram"] : []),
-          ...(form.youtubeUrl ? ["youtube"] : []),
+          ...(form.instagram ? ["instagram"] : []),
+          ...(form.youtube ? ["youtube"] : []),
         ],
-        tier: "micro",
-        bio: form.bio,
-        socialHandles: {
-          instagram: form.instagramHandle || undefined,
-          youtube: form.youtubeUrl || undefined,
+        tier: "micro", bio: form.bio,
+        socialHandles: { instagram: form.instagram || undefined, youtube: form.youtube || undefined },
+        profileImage: DEFAULT_AVATAR,
+        city: form.city,
+        pricing: {
+          reelRate: Number(form.reelRate) || 0,
+          storyRate: Number(form.storyRate) || 0,
+          longVideoRate: Number(form.longVideoRate) || 0,
+          shortsRate: Number(form.shortsRate) || 0,
         },
-        profileImage: form.profileImage || DEFAULT_AVATAR,
       });
       navigate("/influencer/dashboard");
     } catch (err) {
-      toast({
-        title: "Registration Failed",
-        description: err instanceof Error ? err.message : "Something went wrong",
-        variant: "destructive",
-      });
+      setError(err instanceof Error ? err.message : "Registration failed.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-purple-700 via-fuchsia-600 to-pink-500 px-4 py-8 sm:px-6 sm:py-10">
-      <div className="mx-auto w-full max-w-3xl space-y-4">
-        <Link to="/role-select" className="inline-flex items-center gap-2 text-sm text-white/90 hover:text-white">
-          <ArrowLeft className="h-4 w-4" />
-          Back
+    <main className="min-h-screen bg-obsidian px-4 py-10">
+      <div className="mx-auto w-full max-w-lg">
+        <Link to="/login" className="flex items-center gap-2 text-sm text-chalk-dim hover:text-chalk mb-8 transition-colors">
+          <ArrowLeft className="h-4 w-4" /> Back
         </Link>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl text-purple-700 dark:text-purple-300">Influencer Registration</CardTitle>
-            <CardDescription>Create your account and profile so brands can discover and collaborate with you.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form className="space-y-7" onSubmit={handleSubmit}>
-              <section className="space-y-3">
-                <h2 className="font-semibold">Account Details</h2>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="grid gap-2">
-                    <Label htmlFor="fullName">Full Name *</Label>
-                    <Input
-                      id="fullName"
-                      value={form.fullName}
-                      onChange={(event) => setForm((prev) => ({ ...prev, fullName: event.target.value }))}
-                      placeholder="Enter your full name"
-                    />
-                    {errors.fullName && <p className="text-xs text-destructive">{errors.fullName}</p>}
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={form.email}
-                      onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
-                      placeholder="you@example.com"
-                    />
-                    {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="phone">Phone Number *</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={form.phone}
-                      onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
-                      placeholder="+91 9876543210"
-                    />
-                    {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="password">Password *</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={form.password}
-                      onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
-                      placeholder="Min 6 characters"
-                    />
-                    {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
-                  </div>
-                </div>
-              </section>
+        {/* Stepper */}
+        <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2">
+          {STEPS.map((label, i) => (
+            <div key={label} className="flex items-center gap-2 flex-shrink-0">
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${i < step ? "step-done" : i === step ? "step-active" : "step-pending"}`}>
+                {i < step ? "✓" : i + 1}
+              </div>
+              <span className={`text-xs ${i === step ? "text-chalk" : "text-chalk-faint"}`}>{label}</span>
+              {i < STEPS.length - 1 && <div className="w-4 h-px bg-white/10 flex-shrink-0" />}
+            </div>
+          ))}
+        </div>
 
-              <section className="space-y-3">
-                <h2 className="font-semibold">Profile Picture</h2>
-                <div className="flex items-center gap-4">
-                  <div className="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-2 border-dashed border-gray-300">
-                    {profilePreview ? (
-                      <img src={profilePreview} alt="Profile preview" className="h-full w-full object-cover" />
-                    ) : (
-                      <Upload className="h-8 w-8 text-gray-400" />
-                    )}
+        <div className="bento-card p-6">
+          {step === 0 && (
+            <div className="space-y-4">
+              <h2 className="font-display text-xl font-bold text-chalk">Basic Information</h2>
+              {([
+                { key: "name", label: "Full Name", type: "text", ph: "Priya Sharma" },
+                { key: "email", label: "Email", type: "email", ph: "priya@example.com" },
+                { key: "phone", label: "WhatsApp Number", type: "tel", ph: "+91 9876543210" },
+                { key: "password", label: "Password", type: "password", ph: "Min 8 characters" },
+              ] as const).map(({ key, label, type, ph }) => (
+                <div key={key}>
+                  <label className="block text-sm text-chalk-dim mb-1.5">{label} *</label>
+                  <input type={type} value={form[key]} onChange={set(key)} className="dark-input w-full px-4 py-3 text-sm" placeholder={ph} />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {step === 1 && (
+            <div className="space-y-4">
+              <h2 className="font-display text-xl font-bold text-chalk">Your Genre</h2>
+              <p className="text-sm text-chalk-dim">Select all that apply</p>
+              <div className="flex flex-wrap gap-2">
+                {GENRES.map((g) => (
+                  <button key={g} type="button" onClick={() => toggleGenre(g)}
+                    className={`goal-chip px-4 py-2 text-sm ${form.genres.includes(g) ? "selected" : ""}`}>
+                    {g}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-4">
+              <h2 className="font-display text-xl font-bold text-chalk">Connect Platforms</h2>
+              <p className="text-sm text-chalk-dim">At least one handle required</p>
+              <div>
+                <label className="block text-sm text-chalk-dim mb-1.5">📸 Instagram Handle</label>
+                <input value={form.instagram} onChange={set("instagram")} className="dark-input w-full px-4 py-3 text-sm" placeholder="@priyasharma" />
+              </div>
+              <div>
+                <label className="block text-sm text-chalk-dim mb-1.5">▶️ YouTube Channel URL</label>
+                <input value={form.youtube} onChange={set("youtube")} className="dark-input w-full px-4 py-3 text-sm" placeholder="youtube.com/@priyasharma" />
+              </div>
+              <p className="text-xs text-chalk-faint">Connecting platforms enables auto-pulling of real analytics.</p>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-4">
+              <h2 className="font-display text-xl font-bold text-chalk">Set Your Rates</h2>
+              <p className="text-xs text-chalk-faint">5% platform markup added automatically at checkout</p>
+              <div className="grid grid-cols-2 gap-3">
+                {([
+                  { key: "reelRate", label: "Instagram Reel (₹)", ph: "15000" },
+                  { key: "storyRate", label: "Story (₹)", ph: "5000" },
+                  { key: "longVideoRate", label: "YouTube Long (₹)", ph: "25000" },
+                  { key: "shortsRate", label: "Shorts (₹)", ph: "8000" },
+                ] as const).map(({ key, label, ph }) => (
+                  <div key={key}>
+                    <label className="block text-xs text-chalk-dim mb-1.5">{label}</label>
+                    <input type="number" value={form[key]} onChange={set(key)} className="dark-input w-full px-3 py-2.5 text-sm" placeholder={ph} />
                   </div>
-                  <div className="flex-1">
-                    <Label htmlFor="profileImage" className="cursor-pointer">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                        <Upload className="h-4 w-4" />
-                        <span>Upload Photo</span>
-                      </div>
-                    </Label>
-                    <Input
-                      id="profileImage"
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageChange}
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">Optional. A default avatar will be used if not uploaded.</p>
-                  </div>
-                </div>
-              </section>
+                ))}
+              </div>
+              <div>
+                <label className="block text-sm text-chalk-dim mb-1.5">Bio (optional)</label>
+                <textarea value={form.bio} onChange={set("bio")} rows={3} maxLength={300}
+                  className="dark-input w-full px-4 py-3 text-sm resize-none" placeholder="Tell brands about your content style..." />
+              </div>
+            </div>
+          )}
 
-              <section className="space-y-3">
-                <h2 className="font-semibold">Bio</h2>
-                <div className="grid gap-2">
-                  <Label htmlFor="bio">About You *</Label>
-                  <Textarea
-                    id="bio"
-                    value={form.bio}
-                    maxLength={300}
-                    onChange={(event) => setForm((prev) => ({ ...prev, bio: event.target.value }))}
-                    placeholder="Tell brands about your content style, audience, and strengths"
-                  />
-                  <p className="text-right text-xs text-muted-foreground">{bioCount}/300</p>
-                  {errors.bio && <p className="text-xs text-destructive">{errors.bio}</p>}
+          {step === 4 && (
+            <div className="space-y-4">
+              <h2 className="font-display text-xl font-bold text-chalk">Your Location</h2>
+              {([
+                { key: "city", label: "City", ph: "Mumbai" },
+                { key: "state", label: "State", ph: "Maharashtra" },
+              ] as const).map(({ key, label, ph }) => (
+                <div key={key}>
+                  <label className="block text-sm text-chalk-dim mb-1.5">{label} *</label>
+                  <input value={form[key]} onChange={set(key)} className="dark-input w-full px-4 py-3 text-sm" placeholder={ph} />
                 </div>
-              </section>
+              ))}
+              <div>
+                <label className="block text-sm text-chalk-dim mb-1.5">Country *</label>
+                <select value={form.country} onChange={set("country")} className="dark-select w-full px-4 py-3 text-sm">
+                  {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            </div>
+          )}
 
-              <section className="space-y-3">
-                <h2 className="font-semibold">Social Media Handles</h2>
-                <p className="text-xs text-muted-foreground">At least one handle is required.</p>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Input placeholder="Instagram handle (e.g., @username)" value={form.instagramHandle} onChange={(event) => setForm((prev) => ({ ...prev, instagramHandle: event.target.value }))} />
-                  <Input placeholder="YouTube channel URL" value={form.youtubeUrl} onChange={(event) => setForm((prev) => ({ ...prev, youtubeUrl: event.target.value }))} />
-                </div>
-                {errors.social && <p className="text-xs text-destructive">{errors.social}</p>}
-              </section>
+          {error && <p className="text-red-400 text-sm mt-3">{error}</p>}
 
-              <section className="space-y-3">
-                <h2 className="font-semibold">Niche / Category *</h2>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {NICHE_OPTIONS.map((niche) => (
-                    <label key={niche} className="flex items-center gap-2 rounded-md border p-2 text-sm">
-                      <Checkbox checked={form.niches.includes(niche)} onCheckedChange={() => toggleNiche(niche)} />
-                      {niche}
-                    </label>
-                  ))}
-                </div>
-                {errors.niches && <p className="text-xs text-destructive">{errors.niches}</p>}
-              </section>
-
-              <Button type="submit" className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-95" disabled={loading}>
-                {loading ? "Creating Account..." : "Create Account"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+          <div className="flex gap-3 mt-6">
+            {step > 0 && (
+              <button onClick={back} className="flex-1 py-3 text-sm rounded-full border border-white/10 text-chalk-dim hover:text-chalk transition-colors">
+                Back
+              </button>
+            )}
+            {step < 4 ? (
+              <button onClick={next} className="flex-1 purple-pill py-3 text-sm">
+                Continue →
+              </button>
+            ) : (
+              <button onClick={handleSubmit} disabled={loading} className="flex-1 gold-pill py-3 text-sm disabled:opacity-50">
+                {loading ? "Creating Account..." : "Complete Profile ✓"}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </main>
   );

@@ -1,39 +1,70 @@
-import { Instagram, Linkedin, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Instagram, Twitter, Linkedin } from "lucide-react";
 
-const footerLinks = ["Home", "How It Works", "For Influencers", "For Brands", "Contact"];
+const NAV_LINKS = [
+  { label: "Creators", to: "/marketplace" },
+  { label: "Feed", to: "/feed" },
+  { label: "Contact", to: "/contact" },
+];
+
+const LEGAL_LINKS = [
+  { label: "Privacy", to: "#" },
+  { label: "Terms", to: "#" },
+];
 
 export function Footer() {
   return (
-    <footer className="bg-slate-950 text-slate-100">
-      <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 sm:px-6">
+    <footer className="bg-obsidian border-t border-white/5">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-10 flex flex-col sm:flex-row items-start justify-between gap-8">
         <div className="space-y-2">
-          <p className="text-xl font-bold">Kalakaarian</p>
-          <p className="text-sm text-slate-300">Connect influencers and brands to launch unforgettable campaigns.</p>
+          <p className="font-display font-bold text-chalk text-lg">K KALAKAARIAN</p>
+          <p className="text-sm text-chalk-dim max-w-xs">
+            India&apos;s premier influencer marketplace. Real analytics, escrow payments, campaign tracking.
+          </p>
         </div>
-        <div className="space-y-4 sm:text-right">
-          <nav className="flex flex-wrap gap-3 sm:justify-end">
-            {footerLinks.map((link) => (
-              <Link key={link} to="#" className="text-sm text-slate-300 hover:text-white">
-                {link}
-              </Link>
-            ))}
-          </nav>
-          <div className="flex gap-3 sm:justify-end">
-            <a href="#" aria-label="Instagram" className="rounded-md bg-white/10 p-2 hover:bg-white/20">
-              <Instagram className="h-4 w-4" />
-            </a>
-            <a href="#" aria-label="Twitter" className="rounded-md bg-white/10 p-2 hover:bg-white/20">
-              <Twitter className="h-4 w-4" />
-            </a>
-            <a href="#" aria-label="LinkedIn" className="rounded-md bg-white/10 p-2 hover:bg-white/20">
-              <Linkedin className="h-4 w-4" />
-            </a>
+
+        <div className="flex flex-wrap gap-8">
+          <div className="space-y-2">
+            <p className="text-xs text-chalk-faint uppercase tracking-widest font-medium">Platform</p>
+            <nav className="flex flex-col gap-1.5">
+              {NAV_LINKS.map(({ label, to }) => (
+                <Link key={label} to={to} className="text-sm text-chalk-dim hover:text-chalk transition-colors">
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs text-chalk-faint uppercase tracking-widest font-medium">Legal</p>
+            <nav className="flex flex-col gap-1.5">
+              {LEGAL_LINKS.map(({ label, to }) => (
+                <Link key={label} to={to} className="text-sm text-chalk-dim hover:text-chalk transition-colors">
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs text-chalk-faint uppercase tracking-widest font-medium">Follow</p>
+            <div className="flex gap-2">
+              {[
+                { icon: Instagram, label: "Instagram" },
+                { icon: Twitter, label: "Twitter" },
+                { icon: Linkedin, label: "LinkedIn" },
+              ].map(({ icon: Icon, label }) => (
+                <a key={label} href="#" aria-label={label}
+                  className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-chalk-dim hover:text-chalk hover:border-white/30 transition-colors">
+                  <Icon className="w-3.5 h-3.5" />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-      <div className="border-t border-white/10 px-4 py-4 text-center text-xs text-slate-400">
-        © 2025 Kalakaarian. All rights reserved.
+      <div className="border-t border-white/5 px-4 py-4 text-center text-xs text-chalk-faint">
+        © 2026 Kalakaarian. All rights reserved.
       </div>
     </footer>
   );

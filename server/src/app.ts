@@ -23,6 +23,7 @@ import whatsappRoutes from './routes/whatsapp';
 import socialStatsRoutes from './routes/socialStats';
 import contactRoutes from './routes/contact';
 import uploadRoutes from './routes/upload';
+import feedRoutes from './routes/feed';
 
 dotenv.config();
 
@@ -89,6 +90,7 @@ app.use('/api/whatsapp', whatsappRoutes);
 app.use('/api/social', socialStatsRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/feed', feedRoutes);
 
 if (process.env.SENTRY_DSN) {
   Sentry.setupExpressErrorHandler(app);

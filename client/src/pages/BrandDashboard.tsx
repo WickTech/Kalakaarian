@@ -1,439 +1,234 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Plus, TrendingUp, CheckCircle, Clock, FileText, Users, Search, MessageSquare, Check, X, Loader2, ChevronDown, ChevronUp } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Plus, Search, MessageSquare, FileText, TrendingUp, Users, DollarSign, Check, X, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
-import { api, Campaign, Proposal, BrandAnalytics, CampaignWorkflow, CampaignFile } from "@/lib/api";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { api, Campaign, Proposal, BrandAnalytics } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { WorkflowTimeline } from "@/components/WorkflowTimeline";
-import { CampaignFileUpload } from "@/components/CampaignFileUpload";
-import { VideoReviewGrid } from "@/components/VideoReviewGrid";
 
-const statusColors: Record<string, "secondary" | "default" | "outline" | "destructive"> = {
-  draft: "secondary",
-  open: "default",
-  in_progress: "outline",
-  completed: "secondary",
-  cancelled: "destructive",
+type Tab = "overview" | "campaigns" | "room";
+
+const STATUS_STYLE: Record<string, string> = {
+  draft: "text-chalk-dim border-white/20",
+  open: "text-green-400 border-green-400/30",
+  in_progress: "text-gold border-gold/30",
+  completed: "text-blue-400 border-blue-400/30",
+  cancelled: "text-red-400 border-red-400/30",
 };
 
-const statusIcons: Record<string, typeof FileText> = {
-  draft: FileText,
-  open: Clock,
-  in_progress: TrendingUp,
-  completed: CheckCircle,
-};
+const WORKFLOW_STEPS = ["Creators Selected", "Shooting Videos", "Uploaded", "Payment Done"];
 
 export default function BrandDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [tab, setTab] = useState<Tab>("overview");
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedCampaignProposals, setSelectedCampaignProposals] = useState<{campaignId: string, proposals: Proposal[]} | null>(null);
-  const [proposalsLoading, setProposalsLoading] = useState(false);
-  const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
-  const [workflowData, setWorkflowData] = useState<Record<string, CampaignWorkflow>>({});
-  const [filesData, setFilesData] = useState<Record<string, CampaignFile[]>>({});
   const [analytics, setAnalytics] = useState<BrandAnalytics | null>(null);
+  const [viewingProposals, setViewingProposals] = useState<{ id: string; proposals: Proposal[] } | null>(null);
+  const [proposalsLoading, setProposalsLoading] = useState(false);
 
   useEffect(() => {
-    fetchCampaigns();
-    fetchAnalytics();
+    Promise.all([api.getCampaigns(), api.getBrandAnalytics()])
+      .then(([c, a]) => { setCampaigns(c); setAnalytics(a); })
+      .catch(() => toast({ title: "Error", description: "Failed to load data", variant: "destructive" }))
+      .finally(() => setLoading(false));
   }, []);
 
-  const fetchCampaigns = async () => {
-    try {
-      const data = await api.getCampaigns();
-      setCampaigns(data);
-    } catch (err) {
-      setError("Failed to load campaigns");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchAnalytics = async () => {
-    try {
-      const data = await api.getBrandAnalytics();
-      setAnalytics(data);
-    } catch (err) {
-      console.error("Failed to load analytics:", err);
-    }
-  };
-
-  const fetchProposals = async (campaignId: string) => {
+  const openProposals = async (campaignId: string) => {
     setProposalsLoading(true);
     try {
       const data = await api.getProposalsForCampaign(campaignId);
-      setSelectedCampaignProposals({ campaignId, proposals: data });
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to load proposals",
-        variant: "destructive",
-      });
-    } finally {
-      setProposalsLoading(false);
-    }
+      setViewingProposals({ id: campaignId, proposals: data });
+    } catch { toast({ title: "Error", description: "Failed to load proposals", variant: "destructive" }); }
+    finally { setProposalsLoading(false); }
   };
 
-  const handleRespondToProposal = async (proposalId: string, status: "accepted" | "rejected") => {
-    try {
-      await api.respondToProposal(proposalId, status);
-      toast({
-        title: "Success",
-        description: `Proposal ${status} successfully`,
-      });
-      if (selectedCampaignProposals) {
-        fetchProposals(selectedCampaignProposals.campaignId);
-      }
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to update proposal status",
-        variant: "destructive",
-      });
-    }
+  const respond = async (proposalId: string, status: "accepted" | "rejected") => {
+    await api.respondToProposal(proposalId, status);
+    toast({ title: "Success", description: `Proposal ${status}` });
+    if (viewingProposals) openProposals(viewingProposals.id);
   };
 
-  const fetchWorkflowAndFiles = async (campaignId: string) => {
-    try {
-      const [wf, fl] = await Promise.all([
-        api.getCampaignWorkflow(campaignId),
-        api.getCampaignFiles(campaignId),
-      ]);
-      setWorkflowData(prev => ({ ...prev, [campaignId]: wf }));
-      setFilesData(prev => ({ ...prev, [campaignId]: fl }));
-    } catch (err) {
-      console.error('Error fetching workflow data:', err);
-    }
-  };
+  const statCards = [
+    { label: "Active Campaigns", value: campaigns.filter((c) => c.status === "open" || c.status === "in_progress").length, icon: "🚀" },
+    { label: "Total Creators", value: analytics?.proposals?.accepted || 0, icon: "👥" },
+    { label: "Total Spent", value: `₹${((analytics as Record<string, unknown>)?.totalSpent as number || 0).toLocaleString("en-IN")}`, icon: "💰" },
+    { label: "Proposals", value: analytics?.proposals?.total || 0, icon: "📊" },
+  ];
 
-  const handleStageUpdate = async (campaignId: string, stage: string) => {
-    try {
-      await api.updateWorkflowStage(campaignId, stage);
-      await fetchWorkflowAndFiles(campaignId);
-      toast({ title: 'Success', description: 'Stage updated' });
-    } catch (err) {
-      toast({ title: 'Error', description: 'Failed to update stage', variant: 'destructive' });
-    }
-  };
-
-  const handleFileUpload = async (campaignId: string, fileUrl: string, fileName: string, fileType: string) => {
-    try {
-      await api.uploadCampaignFile(campaignId, fileUrl, fileName, fileType);
-      await fetchWorkflowAndFiles(campaignId);
-      toast({ title: 'Success', description: 'File uploaded' });
-    } catch (err) {
-      toast({ title: 'Error', description: 'Failed to upload file', variant: 'destructive' });
-    }
-  };
-
-  const handleVideoApprove = async (campaignId: string, videoIndex: number) => {
-    try {
-      await api.updateVideoStatus(campaignId, videoIndex, 'approved');
-      await fetchWorkflowAndFiles(campaignId);
-      toast({ title: 'Success', description: 'Video approved' });
-    } catch (err) {
-      toast({ title: 'Error', description: 'Failed to approve video', variant: 'destructive' });
-    }
-  };
-
-  const handleVideoRevision = async (campaignId: string, videoIndex: number, feedback: string) => {
-    try {
-      await api.updateVideoStatus(campaignId, videoIndex, 'revision', feedback);
-      await fetchWorkflowAndFiles(campaignId);
-      toast({ title: 'Success', description: 'Revision requested' });
-    } catch (err) {
-      toast({ title: 'Error', description: 'Failed to request revision', variant: 'destructive' });
-    }
-  };
-
-  const toggleExpand = async (campaignId: string) => {
-    if (expandedCampaign === campaignId) {
-      setExpandedCampaign(null);
-    } else {
-      setExpandedCampaign(campaignId);
-      await fetchWorkflowAndFiles(campaignId);
-    }
-  };
-
-  const stats = {
-    total: campaigns.length,
-    active: campaigns.filter((c) => c.status === "open" || c.status === "in_progress").length,
-    completed: campaigns.filter((c) => c.status === "completed").length,
-  };
-
-  const getStatusDisplay = (status: string) => {
-    if (status === "in_progress") return "In Progress";
-    return status.charAt(0).toUpperCase() + status.slice(1);
-  };
+  const Tabs = () => (
+    <div className="flex gap-2 mb-6">
+      {(["overview", "campaigns", "room"] as Tab[]).map((t) => (
+        <button key={t} onClick={() => setTab(t)}
+          className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${tab === t ? "bg-purple-600 text-white" : "border border-white/10 text-chalk-dim hover:text-chalk"}`}>
+          {t === "room" ? "🏠 Your Room" : t.charAt(0).toUpperCase() + t.slice(1)}
+        </button>
+      ))}
+    </div>
+  );
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-700 via-cyan-600 to-sky-500 px-4 py-8">
-      <div className="mx-auto max-w-6xl space-y-6">
-        <Link
-          to="/role-select"
-          className="inline-flex items-center gap-2 text-sm text-white/90 hover:text-white"
-        >
-          <ArrowLeft className="h-4 w-4" /> Back
-        </Link>
-
+    <main className="min-h-screen bg-obsidian px-4 py-8">
+      <div className="mx-auto max-w-5xl space-y-6">
+        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white">Brand Dashboard</h1>
-            <p className="text-white/80">Welcome back, {user?.brandName || user?.name || "Brand"}</p>
+            <h1 className="font-display text-3xl font-bold text-chalk">Brand Dashboard</h1>
+            <p className="text-chalk-dim text-sm mt-1">Welcome back, {user?.brandName || user?.name || "Brand"}</p>
           </div>
           <div className="flex gap-2">
-            <Button asChild variant="outline" className="border-white text-white hover:bg-white/15">
-              <Link to="/messages">
-                <MessageSquare className="h-4 w-4" />
-                Messages
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="border-white text-white hover:bg-white/15">
-              <Link to="/marketplace">
-                <Search className="h-4 w-4" />
-                Browse Influencers
-              </Link>
-            </Button>
-            <Button asChild className="bg-white text-cyan-700 hover:bg-white/90">
-              <Link to="/brand-campaign">
-                <Plus className="h-4 w-4" />
-                New Campaign
-              </Link>
-            </Button>
+            <Link to="/messages" className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-chalk-dim hover:text-chalk text-sm transition-colors">
+              <MessageSquare className="w-4 h-4" />
+            </Link>
+            <Link to="/marketplace" className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-chalk-dim hover:text-chalk text-sm transition-colors">
+              <Search className="w-4 h-4" /> Browse
+            </Link>
+            <Link to="/brand-campaign" className="purple-pill flex items-center gap-2 px-4 py-2 text-sm">
+              <Plus className="w-4 h-4" /> New Campaign
+            </Link>
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Campaigns</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Campaigns</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.active}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Proposals</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics?.proposals?.total || 0}</div>
-              <p className="text-xs text-muted-foreground">
-                {analytics?.proposals?.pending || 0} pending, {analytics?.proposals?.accepted || 0} accepted
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">₹{((analytics?.spend || 0) / 1000).toFixed(0)}K</div>
-            </CardContent>
-          </Card>
-        </div>
+        <Tabs />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Your Campaigns</CardTitle>
-            <CardDescription>Manage and track all your campaigns</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div>
-              </div>
-            ) : error ? (
-              <div className="text-center py-8 text-red-500">{error}</div>
-            ) : campaigns.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No campaigns yet. Create your first campaign!
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-10"></TableHead>
-                    <TableHead>Campaign</TableHead>
-                    <TableHead>Genre</TableHead>
-                    <TableHead>Budget</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Proposals</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {campaigns.map((campaign) => {
-                    const statusKey = campaign.status as keyof typeof statusColors;
-                    const StatusIcon = statusIcons[statusKey] || FileText;
-                    const isExpanded = expandedCampaign === campaign._id;
-                    return (
-                      <>
-                        <TableRow key={campaign._id}>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => toggleExpand(campaign._id)}
-                            >
-                              {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                            </Button>
-                          </TableCell>
-                          <TableCell className="font-medium">{campaign.title}</TableCell>
-                          <TableCell>{campaign.genre}</TableCell>
-                          <TableCell>₹{campaign.budget.toLocaleString()}</TableCell>
-                          <TableCell>
-                            <Badge variant={statusColors[statusKey] || "secondary"}>
-                              <StatusIcon className="mr-1 h-3 w-3" />
-                              {getStatusDisplay(campaign.status)}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => fetchProposals(campaign._id)}
-                                >
-                                  View Proposals
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                                <DialogHeader>
-                                  <DialogTitle>Proposals for {campaign.title}</DialogTitle>
-                                  <DialogDescription>Review and respond to influencers who applied.</DialogDescription>
-                                </DialogHeader>
-                                
-                                {proposalsLoading ? (
-                                  <div className="flex justify-center py-8">
-                                    <Loader2 className="h-8 w-8 animate-spin" />
-                                  </div>
-                                ) : selectedCampaignProposals?.proposals.length === 0 ? (
-                                  <div className="text-center py-8 text-muted-foreground">
-                                    No proposals yet for this campaign.
-                                  </div>
-                                ) : (
-                                  <Table>
-                                    <TableHeader>
-                                      <TableRow>
-                                        <TableHead>Influencer</TableHead>
-                                        <TableHead>Bid</TableHead>
-                                        <TableHead>Message</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                      </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                      {selectedCampaignProposals?.proposals.map((prop) => (
-                                        <TableRow key={prop._id}>
-                                          <TableCell className="font-medium">{prop.influencerName}</TableCell>
-                                          <TableCell>₹{prop.bidAmount.toLocaleString()}</TableCell>
-                                          <TableCell className="max-w-xs truncate">{prop.message}</TableCell>
-                                          <TableCell>
-                                            <Badge variant={
-                                              prop.status === "accepted" ? "default" : 
-                                              prop.status === "rejected" ? "destructive" : "outline"
-                                            }>
-                                              {prop.status.toUpperCase()}
-                                            </Badge>
-                                          </TableCell>
-                                          <TableCell className="text-right">
-                                            {prop.status === "pending" && (
-                                              <div className="flex justify-end gap-2">
-                                                <Button 
-                                                  size="sm" 
-                                                  variant="default" 
-                                                  className="h-8 bg-green-600 hover:bg-green-700"
-                                                  onClick={() => handleRespondToProposal(prop._id, "accepted")}
-                                                >
-                                                  <Check className="h-4 w-4" />
-                                                </Button>
-                                                <Button 
-                                                  size="sm" 
-                                                  variant="destructive" 
-                                                  className="h-8"
-                                                  onClick={() => handleRespondToProposal(prop._id, "rejected")}
-                                                >
-                                                  <X className="h-4 w-4" />
-                                                </Button>
-                                              </div>
-                                            )}
-                                            <Button size="sm" variant="ghost" asChild className="h-8 ml-2">
-                                              <Link to="/messages">
-                                                <MessageSquare className="h-4 w-4" />
-                                              </Link>
-                                            </Button>
-                                          </TableCell>
-                                        </TableRow>
-                                      ))}
-                                    </TableBody>
-                                  </Table>
-                                )}
-                              </DialogContent>
-                            </Dialog>
-                          </TableCell>
-                        </TableRow>
-                        {isExpanded && (
-                          <TableRow>
-                            <TableCell colSpan={6} className="bg-muted/30 p-4">
-                              <div className="space-y-4">
-                                <div>
-                                  <h4 className="font-semibold mb-2">Workflow</h4>
-                                  <WorkflowTimeline 
-                                    currentStage={workflowData[campaign._id]?.stage || 'selected'}
-                                    onStageChange={(stage) => handleStageUpdate(campaign._id, stage)}
-                                  />
-                                </div>
-                                <div>
-                                  <h4 className="font-semibold mb-2">Campaign Files</h4>
-                                  <CampaignFileUpload 
-                                    files={filesData[campaign._id] || []}
-                                    onUpload={(url, name, type) => handleFileUpload(campaign._id, url, name, type)}
-                                  />
-                                </div>
-                                {workflowData[campaign._id]?.videos && workflowData[campaign._id].videos.length > 0 && (
-                                  <div>
-                                    <h4 className="font-semibold mb-2">Video Review</h4>
-                                    <VideoReviewGrid 
-                                      videos={workflowData[campaign._id].videos}
-                                      onApprove={(idx) => handleVideoApprove(campaign._id, idx)}
-                                      onRevision={(idx, feedback) => handleVideoRevision(campaign._id, idx, feedback)}
-                                    />
-                                  </div>
-                                )}
+        {loading ? (
+          <div className="flex items-center justify-center h-40">
+            <div className="w-8 h-8 rounded-full border-2 border-gold border-t-transparent animate-spin" />
+          </div>
+        ) : (
+          <>
+            {tab === "overview" && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {statCards.map(({ label, value, icon }) => (
+                    <div key={label} className="bento-card p-4">
+                      <div className="text-2xl mb-2">{icon}</div>
+                      <p className="result-numeral text-2xl">{value}</p>
+                      <p className="text-xs text-chalk-dim mt-1">{label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {campaigns.filter((c) => c.status === "in_progress" || c.status === "open").length > 0 && (
+                  <div className="bento-card p-5">
+                    <h2 className="font-display font-bold text-chalk mb-4">Running Campaigns</h2>
+                    {campaigns.filter((c) => c.status !== "draft" && c.status !== "cancelled").slice(0, 3).map((c) => (
+                      <div key={c._id} className="mb-4 last:mb-0">
+                        <p className="text-sm font-medium text-chalk mb-2">{c.title}</p>
+                        <div className="flex items-center gap-2">
+                          {WORKFLOW_STEPS.map((step, i) => (
+                            <div key={step} className="flex items-center gap-2">
+                              <div className={`text-xs flex items-center gap-1 ${i === 0 ? "status-done" : i === 1 && c.status === "in_progress" ? "status-pending" : "status-waiting"}`}>
+                                {i === 0 ? "✅" : "⏳"} {step}
                               </div>
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                              {i < WORKFLOW_STEPS.length - 1 && <div className="w-3 h-px bg-white/10" />}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
-          </CardContent>
-        </Card>
+
+            {tab === "campaigns" && (
+              <div className="bento-card overflow-hidden">
+                <div className="p-5 border-b border-white/5">
+                  <h2 className="font-display font-bold text-chalk">My Campaigns</h2>
+                </div>
+                {campaigns.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center p-12 text-chalk-dim">
+                    <FileText className="w-10 h-10 mb-3 opacity-30" />
+                    <p>No campaigns yet.</p>
+                    <Link to="/brand-campaign" className="purple-pill mt-4 px-5 py-2 text-sm">Create First Campaign</Link>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead><tr className="border-b border-white/5">
+                        {["Campaign", "Status", "Budget", "Deadline", "Actions"].map((h) => (
+                          <th key={h} className="px-5 py-3 text-left text-xs text-chalk-faint font-medium">{h}</th>
+                        ))}
+                      </tr></thead>
+                      <tbody>
+                        {campaigns.map((c) => (
+                          <tr key={c._id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
+                            <td className="px-5 py-3 font-medium text-chalk">{c.title}</td>
+                            <td className="px-5 py-3">
+                              <span className={`text-xs px-2 py-0.5 rounded-full border ${STATUS_STYLE[c.status] || "text-chalk-dim border-white/10"}`}>
+                                {c.status === "in_progress" ? "In Progress" : c.status.charAt(0).toUpperCase() + c.status.slice(1)}
+                              </span>
+                            </td>
+                            <td className="px-5 py-3 text-chalk-dim">₹{c.budget?.toLocaleString("en-IN") || "—"}</td>
+                            <td className="px-5 py-3 text-chalk-dim">{c.deadline ? new Date(c.deadline).toLocaleDateString() : "—"}</td>
+                            <td className="px-5 py-3">
+                              <button onClick={() => openProposals(c._id)} className="text-xs text-gold hover:underline flex items-center gap-1">
+                                {proposalsLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Users className="w-3 h-3" />} Proposals
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {tab === "room" && (
+              <div className="bento-card membership-gold p-6 rounded-xl">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-2xl">🏠</span>
+                  <h2 className="font-display font-bold text-chalk text-xl">Your Room</h2>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-gold/20 text-gold border border-gold/30 ml-auto">₹999/month</span>
+                </div>
+                <p className="text-chalk-dim text-sm mb-4">Premium workspace for power brands</p>
+                <ul className="space-y-2 text-sm text-chalk-dim mb-6">
+                  {["Save creator lists", "Schedule campaigns", "Payment integration", "Advanced analytics", "Priority notifications", "Dedicated support"].map((f) => (
+                    <li key={f} className="flex items-center gap-2"><span className="text-gold">✓</span> {f}</li>
+                  ))}
+                </ul>
+                <button className="gold-pill px-6 py-2.5 text-sm">Activate Your Room →</button>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Proposals Modal */}
+        {viewingProposals && (
+          <div className="modal-overlay open" onClick={() => setViewingProposals(null)}>
+            <div className="modal-box bento-card w-full max-w-lg p-6 mx-4" onClick={(e) => e.stopPropagation()}>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-display font-bold text-chalk">Proposals</h3>
+                <button onClick={() => setViewingProposals(null)} className="text-chalk-dim hover:text-chalk text-xl">✕</button>
+              </div>
+              {viewingProposals.proposals.length === 0 ? (
+                <p className="text-chalk-dim text-sm">No proposals yet for this campaign.</p>
+              ) : viewingProposals.proposals.map((p) => (
+                <div key={p._id} className="bento-card-dark p-4 rounded-lg mb-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm font-medium text-chalk">{p.influencerName || "Creator"}</p>
+                      <p className="text-xs text-chalk-dim mt-1">{p.message}</p>
+                      <p className="text-sm font-bold text-gold mt-2">₹{p.bidAmount.toLocaleString("en-IN")}</p>
+                    </div>
+                    {p.status === "pending" ? (
+                      <div className="flex gap-2 ml-4">
+                        <button onClick={() => respond(p._id, "accepted")} className="p-1.5 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors"><Check className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => respond(p._id, "rejected")} className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"><X className="w-3.5 h-3.5" /></button>
+                      </div>
+                    ) : (
+                      <span className={`text-xs px-2 py-0.5 rounded-full border ${p.status === "accepted" ? "text-green-400 border-green-400/30" : "text-red-400 border-red-400/30"}`}>
+                        {p.status}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

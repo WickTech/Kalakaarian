@@ -27,6 +27,7 @@ import EditBrandProfile from "./pages/EditBrandProfile";
 import Messages from "./pages/Messages";
 import InfluencerProfile from "./pages/InfluencerProfile";
 import ContactPage from "./pages/ContactPage";
+import Feed from "./pages/Feed";
 import { InstallPrompt } from "@/components/InstallPrompt";
 
 const queryClient = new QueryClient();
@@ -247,6 +248,7 @@ function AppContent() {
           path="/influencer/:id"
           element={<InfluencerProfile />}
         />
+        <Route path="/feed" element={<Feed />} />
         <Route
           path="/contact"
           element={<ContactPage />}
