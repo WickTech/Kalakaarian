@@ -658,6 +658,21 @@ export const api = {
     return request<SocialStats>(`/api/social/youtube/stats/${channelId}`);
   },
 
+  // Feed
+  getFeed: async (params?: { page?: number; limit?: number; tier?: string; genre?: string }): Promise<{
+    posts: object[];
+    total: number;
+    page: number;
+    pages: number;
+  }> => {
+    const q = new URLSearchParams();
+    if (params?.page) q.set('page', String(params.page));
+    if (params?.limit) q.set('limit', String(params.limit));
+    if (params?.tier) q.set('tier', params.tier);
+    if (params?.genre) q.set('genre', params.genre);
+    return request(`/api/feed?${q.toString()}`);
+  },
+
   // Contact
   submitContact: async (data: {
     name: string;

@@ -2,42 +2,31 @@ import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
-
-interface LoginFormData {
-  email: string;
-  password: string;
-}
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const { login, loginWithGoogle } = useAuth();
   const [mode, setMode] = useState<"login" | "signup-role">("login");
-  const [form, setForm] = useState<LoginFormData>({ email: "", password: "" });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loginRole, setLoginRole] = useState<"brand" | "influencer">("brand");
 
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
-  const showGoogleLogin = GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID !== "your-google-client-id.apps.googleusercontent.com";
+  const showGoogle =
+    GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID !== "your-google-client-id.apps.googleusercontent.com";
 
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!form.email.trim() || !form.password.trim()) {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!email.trim() || !password.trim()) {
       setError("Please enter both email and password.");
       return;
     }
-
     setError("");
     setLoading(true);
-
     try {
-      await login(form.email, form.password);
+      await login(email, password);
       navigate("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed. Please try again.");
@@ -46,77 +35,56 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse: { credential?: string }) => {
-    console.log('Google credential received:', credentialResponse);
+  const handleGoogleSuccess = async (cr: { credential?: string }) => {
     try {
       setError("");
       setLoading(true);
-      await loginWithGoogle(credentialResponse.credential);
+      await loginWithGoogle(cr.credential);
       navigate("/dashboard");
     } catch (err) {
-      console.error('Google login error:', err);
-      setError(err instanceof Error ? err.message : "Google login failed. Please try again.");
+      setError(err instanceof Error ? err.message : "Google login failed.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRoleSelect = (selectedRole: "brand" | "influencer") => {
-    if (selectedRole === "brand") {
-      navigate("/brand-register");
-    } else {
-      navigate("/influencer-register");
-    }
-  };
-
   if (mode === "signup-role") {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-background p-4">
-        <div className="w-full max-w-2xl">
-          <Link 
-            to="#" 
+      <main className="flex min-h-screen items-center justify-center bg-obsidian p-4">
+        <div className="w-full max-w-xl">
+          <button
             onClick={() => setMode("login")}
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6"
+            className="flex items-center gap-2 text-sm text-chalk-dim hover:text-chalk mb-8 transition-colors"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Back to login
-          </Link>
-
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Create your account</h1>
-            <p className="text-muted-foreground">Choose how you want to use Kalakaarian</p>
-          </div>
-
+            <ArrowLeft className="h-4 w-4" /> Back to login
+          </button>
+          <h1 className="font-display text-3xl font-bold text-chalk mb-2 text-center">
+            Create your account
+          </h1>
+          <p className="text-chalk-dim text-center mb-8">Choose how you want to use Kalakaarian</p>
           <div className="grid gap-4 md:grid-cols-2">
-            <Card 
-              className="cursor-pointer hover:shadow-lg transition-all group"
-              onClick={() => handleRoleSelect("influencer")}
+            <div
+              className="bento-card p-6 cursor-pointer"
+              onClick={() => navigate("/influencer-register")}
             >
-              <CardHeader>
-                <CardTitle className="text-lg">I'm an Influencer</CardTitle>
-                <CardDescription>List your profile and get discovered by top brands</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button className="w-full brand-gradient brand-gradient-hover text-primary-foreground">
-                  Sign up as Influencer
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className="cursor-pointer hover:shadow-lg transition-all group"
-              onClick={() => handleRoleSelect("brand")}
+              <div className="text-2xl mb-3">🎬</div>
+              <h3 className="font-display font-bold text-chalk text-lg mb-2">I'm a Creator</h3>
+              <p className="text-chalk-dim text-sm mb-4">
+                List your profile and get discovered by top brands
+              </p>
+              <button className="purple-pill w-full py-2 text-sm">Sign up as Creator</button>
+            </div>
+            <div
+              className="bento-card p-6 cursor-pointer"
+              onClick={() => navigate("/brand-register")}
             >
-              <CardHeader>
-                <CardTitle className="text-lg">I'm a Brand</CardTitle>
-                <CardDescription>Find the perfect influencers for your campaigns</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button className="w-full brand-gradient brand-gradient-hover text-primary-foreground">
-                  Sign up as Brand
-                </Button>
-              </CardContent>
-            </Card>
+              <div className="text-2xl mb-3">🚀</div>
+              <h3 className="font-display font-bold text-chalk text-lg mb-2">I'm a Brand</h3>
+              <p className="text-chalk-dim text-sm mb-4">
+                Find the perfect creators for your campaigns
+              </p>
+              <button className="gold-pill w-full py-2 text-sm">Sign up as Brand</button>
+            </div>
           </div>
         </div>
       </main>
@@ -124,104 +92,78 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background p-4">
+    <main className="flex min-h-screen items-center justify-center bg-obsidian p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/">
-            <h1 className="text-2xl font-bold brand-text mb-2">Kalakaarian</h1>
+          <Link to="/" className="font-display text-2xl font-bold text-chalk tracking-tight">
+            K KALAKAARIAN
           </Link>
-          <p className="text-muted-foreground">Welcome back</p>
+          <p className="text-chalk-dim text-sm mt-1">Welcome back</p>
         </div>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex rounded-lg bg-secondary p-1 mb-6">
-              <button
-                type="button"
-                onClick={() => setLoginRole("brand")}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                  loginRole === "brand" 
-                    ? "brand-gradient text-primary-foreground shadow-sm" 
-                    : "text-muted-foreground"
-                }`}
-              >
-                Brand
-              </button>
-              <button
-                type="button"
-                onClick={() => setLoginRole("influencer")}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                  loginRole === "influencer" 
-                    ? "brand-gradient text-primary-foreground shadow-sm" 
-                    : "text-muted-foreground"
-                }`}
-              >
-                Influencer
-              </button>
+        <div className="bento-card p-6 space-y-5">
+          {showGoogle && (
+            <>
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setError("Google login failed")}
+                  useOneTap
+                  theme="filled_blue"
+                  shape="rectangular"
+                  width="336"
+                />
+              </div>
+              <div className="relative flex items-center">
+                <div className="flex-grow border-t border-white/10" />
+                <span className="mx-4 text-xs text-chalk-faint uppercase tracking-widest">or</span>
+                <div className="flex-grow border-t border-white/10" />
+              </div>
+            </>
+          )}
+
+          <form onSubmit={onSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm text-chalk-dim mb-1.5">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="dark-input w-full px-4 py-3 text-sm"
+                placeholder="you@example.com"
+              />
             </div>
+            <div>
+              <label className="block text-sm text-chalk-dim mb-1.5">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="dark-input w-full px-4 py-3 text-sm"
+                placeholder="••••••••"
+              />
+            </div>
+            {error && <p className="text-red-400 text-sm">{error}</p>}
+            <button
+              type="submit"
+              disabled={loading}
+              className="purple-pill w-full py-3 text-sm disabled:opacity-50"
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </button>
+          </form>
 
-            {showGoogleLogin && (
-              <>
-                <div className="flex flex-col items-center justify-center space-y-4 pt-2">
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={() => setError("Google login failed")}
-                    useOneTap
-                    theme="filled_blue"
-                    shape="rectangular"
-                    width="100%"
-                  />
-                </div>
-
-                <div className="relative flex items-center py-2">
-                  <div className="flex-grow border-t border-muted" />
-                  <span className="mx-4 flex-shrink text-xs uppercase text-muted-foreground">Or continue with</span>
-                  <div className="flex-grow border-t border-muted" />
-                </div>
-              </>
-            )}
-
-            <form onSubmit={onSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={form.email}
-                  onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
-                  placeholder="you@example.com"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={form.password}
-                  onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
-                  placeholder="••••••••"
-                />
-              </div>
-
-              {error && <p className="text-sm text-destructive">{error}</p>}
-
-              <Button type="submit" className="w-full brand-gradient brand-gradient-hover text-primary-foreground" disabled={loading}>
-                {loading ? "Signing in..." : "Sign In"}
-              </Button>
-            </form>
-
-            <p className="mt-4 text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <button 
-                type="button"
-                onClick={() => setMode("signup-role")} 
-                className="font-medium text-primary hover:underline"
-              >
-                Sign Up
-              </button>
-            </p>
-          </CardContent>
-        </Card>
+          <p className="text-center text-sm text-chalk-dim">
+            Don&apos;t have an account?{" "}
+            <button
+              type="button"
+              onClick={() => setMode("signup-role")}
+              className="text-gold hover:underline font-medium"
+            >
+              Sign Up
+            </button>
+          </p>
+        </div>
       </div>
     </main>
   );
