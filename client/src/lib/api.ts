@@ -230,6 +230,16 @@ export interface RegisterData {
     youtube?: string;
   };
   profileImage?: string;
+  pricing?: {
+    reelRate?: number;
+    storyRate?: number;
+    longVideoRate?: number;
+    shortsRate?: number;
+    reel?: number;
+    story?: number;
+    video?: number;
+    post?: number;
+  };
 }
 
 export interface LoginResponse {
