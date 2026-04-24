@@ -10,6 +10,7 @@
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "seed": "ts-node src/scripts/seed.ts",
+    "seed:influencers": "ts-node src/scripts/seedInfluencers.ts",
     "test": "echo \"No server tests yet\" && exit 0"
   },
   "dependencies": {

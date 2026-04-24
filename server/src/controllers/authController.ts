@@ -31,7 +31,7 @@ const getGoogleUserInfo = async (code: string): Promise<GoogleUserInfo> => {
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, username, phone, password, name, role, companyName, industry, city, niches, platform, tier, bio, socialHandles, profileImage } = req.body;
+    const { email, username, phone, password, name, role, companyName, industry, city, niches, platform, tier, bio, socialHandles, profileImage, pricing } = req.body;
 
     if (!email && !phone && !username) {
       res.status(400).json({ message: 'Email, phone, or username is required' }); return;
@@ -63,10 +63,20 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     if (role === 'brand') {
       await BrandProfile.create({ userId: user._id, companyName: companyName || name, industry: industry || '' });
     } else if (role === 'influencer') {
+      // Normalise pricing: client may send reelRate/storyRate/longVideoRate/shortsRate
+      // or the canonical reel/story/video/post — support both
+      const p = pricing || {};
+      const normalisedPricing = {
+        reel:  p.reel  ?? p.reelRate       ?? undefined,
+        story: p.story ?? p.storyRate      ?? undefined,
+        video: p.video ?? p.longVideoRate  ?? undefined,
+        post:  p.post  ?? p.shortsRate     ?? undefined,
+      };
       await InfluencerProfile.create({
         userId: user._id, bio: bio || '', city: city || '',
         niches: niches || [], platform: platform || [], tier: tier || 'micro',
         socialHandles: socialHandles || {}, profileImage: profileImage || undefined,
+        pricing: normalisedPricing,
       });
     }
 
@@ -80,7 +90,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     res.status(201).json({
       message: 'User registered successfully',
-      user: { id: user._id, email: user.email, username: user.username, phone: user.phone, name: user.name, role: user.role },
+      user: { _id: user._id, id: user._id, email: user.email, username: user.username, phone: user.phone, name: user.name, role: user.role },
       token,
     });
   } catch (error) {

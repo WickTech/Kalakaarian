@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { api, User, LoginResponse, ApiError } from "@/lib/api";
+import { api, User, LoginResponse, ApiError, RegisterData } from "@/lib/api";
 
 interface AuthContextType {
   user: User | null;
@@ -10,14 +10,6 @@ interface AuthContextType {
   loginWithGoogle: (googleToken: string) => Promise<void>;
   logout: () => void;
   register: (data: RegisterData) => Promise<void>;
-}
-
-interface RegisterData {
-  email: string;
-  password: string;
-  name: string;
-  role: "brand" | "influencer";
-  brandName?: string;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -98,23 +90,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const response: LoginResponse = await api.register(data);
+      // Normalise: server returns both `id` and `_id`; ensure _id is always set
+      const raw = response.user as User & { id?: string };
+      const user: User = { ...raw, _id: raw._id || raw.id || "" };
       localStorage.setItem(TOKEN_KEY, response.token);
-      localStorage.setItem(USER_KEY, JSON.stringify(response.user));
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
       setToken(response.token);
-      setUser(response.user);
+      setUser(user);
     } catch (err) {
-      const mockUser: User = {
-        _id: "demo-" + Date.now(),
-        email: data.email,
-        name: data.name,
-        role: data.role,
-        brandName: data.role === "brand" ? data.brandName : undefined,
-      };
-      const mockToken = "demo-token-" + Date.now();
-      localStorage.setItem(TOKEN_KEY, mockToken);
-      localStorage.setItem(USER_KEY, JSON.stringify(mockUser));
-      setToken(mockToken);
-      setUser(mockUser);
+      const message = err instanceof ApiError ? err.message : "Registration failed";
+      setError(message);
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -124,9 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     setError(null);
     try {
-      console.log('Calling API with Google token...');
       const response: LoginResponse = await api.googleLogin(googleToken);
-      console.log('Google login response:', response);
       localStorage.setItem(TOKEN_KEY, response.token);
       localStorage.setItem(USER_KEY, JSON.stringify(response.user));
       setToken(response.token);
