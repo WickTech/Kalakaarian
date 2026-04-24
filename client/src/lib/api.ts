@@ -411,6 +411,8 @@ export const api = {
 
   searchInfluencers: async (filters?: InfluencerSearchFilters): Promise<InfluencerProfile[]> => {
     const params = new URLSearchParams();
+    // Always request the server maximum so client-side filters see the full dataset
+    params.append("limit", "100");
     if (filters?.tier) params.append("tier", filters.tier);
     if (filters?.genre) params.append("genre", filters.genre);
     if (filters?.platform) params.append("platform", filters.platform);
@@ -418,7 +420,7 @@ export const api = {
     if (filters?.minFollowers) params.append("minFollowers", filters.minFollowers.toString());
     if (filters?.maxFollowers) params.append("maxFollowers", filters.maxFollowers.toString());
     if (filters?.gender) params.append("gender", filters.gender);
-    const query = params.toString() ? `?${params.toString()}` : "";
+    const query = `?${params.toString()}`;
     const response = await request<{ influencers: InfluencerProfile[]; pagination: Pagination }>(`/api/influencers${query}`);
     return response.influencers || response as unknown as InfluencerProfile[];
   },

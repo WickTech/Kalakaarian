@@ -26,7 +26,7 @@ const PER_PAGE = 12;
 
 export default function Marketplace({ cartCount, onCartOpen, isInCart, addToCart }: MarketplaceProps) {
   const navigate = useNavigate();
-  const [platform, setPlatform] = useState<"instagram" | "youtube">("instagram");
+  const [platform, setPlatform] = useState<"all" | "instagram" | "youtube">("all");
   const [tier, setTier] = useState<Tier | "all">("all");
   const [gender, setGender] = useState<GenderFilter>("all");
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
@@ -65,10 +65,17 @@ export default function Marketplace({ cartCount, onCartOpen, isInCart, addToCart
   }, [gender]);
 
   const filtered = useMemo(() => {
-    let r = influencers.filter((i) => {
-      const p = Array.isArray(i.platform) ? i.platform : [i.platform];
-      return p.includes(platform);
-    });
+    let r = influencers;
+    if (platform !== "all") {
+      r = r.filter((i) => {
+        // i.platform may be a string or an array (API returns string[])
+        const p: string[] = Array.isArray(i.platform)
+          ? (i.platform as unknown as string[])
+          : [i.platform as string].filter(Boolean);
+        // Influencers with no platform set are shown in all views
+        return p.length === 0 || p.includes(platform);
+      });
+    }
     if (tier !== "all") r = r.filter((i) => i.tier === tier);
     if (selectedGenres.length) r = r.filter((i) => selectedGenres.includes(i.genre));
     if (location) r = r.filter((i) => i.city?.toLowerCase().includes(location.toLowerCase()));
@@ -176,6 +183,10 @@ export default function Marketplace({ cartCount, onCartOpen, isInCart, addToCart
           {/* Platform + Tier controls */}
           <div className="flex flex-wrap gap-3 items-center">
             <div className="flex rounded-full border border-white/10 overflow-hidden text-sm">
+              <button onClick={() => { setPlatform("all"); setPage(1); }}
+                className={`px-4 py-2 transition-all ${platform === "all" ? "bg-white/10 text-chalk" : "text-chalk-dim"}`}>
+                All
+              </button>
               {(["instagram", "youtube"] as const).map((p) => (
                 <button key={p} onClick={() => { setPlatform(p); setPage(1); }}
                   className={`flex items-center gap-1.5 px-4 py-2 transition-all ${platform === p ? "bg-white/10 text-chalk" : "text-chalk-dim"}`}>
