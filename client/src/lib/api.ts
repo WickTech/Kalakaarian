@@ -44,7 +44,7 @@ export interface CampaignFilters {
 }
 
 export interface InfluencerProfile {
-  _id: string;
+  _id?: string;
   id?: string;
   name?: string;
   bio?: string;
@@ -61,6 +61,7 @@ export interface InfluencerProfile {
   verified?: boolean;
   isOnline?: boolean;
   lastSeenAt?: string;
+  followerCount?: number;
   instagramPosts?: Array<{ url: string; thumbnail?: string; caption?: string }>;
   youtubeVideos?: Array<{ url: string; thumbnail?: string; title?: string }>;
 }
@@ -346,7 +347,8 @@ export const api = {
   },
 
   getInfluencerProfile: async (): Promise<InfluencerProfile> => {
-    return request<InfluencerProfile>("/api/influencers/profile");
+    const response = await request<{ influencer: InfluencerProfile }>("/api/influencers/profile");
+    return response.influencer;
   },
 
   getProposals: async (): Promise<Proposal[]> => {

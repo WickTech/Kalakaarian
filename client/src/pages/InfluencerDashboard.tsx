@@ -72,7 +72,7 @@ export default function InfluencerDashboard() {
   const stats = {
     total: proposals.length,
     accepted: proposals.filter((p) => p.status === "accepted").length,
-    earnings: analytics?.earnings || proposals.filter((p) => p.status === "accepted").reduce((s, p) => s + p.bidAmount, 0),
+    earnings: analytics?.totalEarnings || proposals.filter((p) => p.status === "accepted").reduce((s, p) => s + p.bidAmount, 0),
   };
 
   if (loading) return (
@@ -248,7 +248,7 @@ export default function InfluencerDashboard() {
                     </li>
                   ))}
                 </ul>
-                <button onClick={() => api.createMembershipOrder({ tier: plan, amount: plan === "gold" ? 14900 : 7900 })}
+                <button onClick={() => api.createMembershipOrder(plan)}
                   className={`w-full py-2.5 text-sm rounded-full font-bold ${plan === "gold" ? "gold-pill" : "purple-pill"}`}>
                   {membershipStatus?.tier === plan && membershipStatus.active ? "✓ Active" : `Activate ${plan.charAt(0).toUpperCase() + plan.slice(1)}`}
                 </button>

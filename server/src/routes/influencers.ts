@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import { getInfluencers, getInfluencerById, searchInfluencers, updateInfluencerProfile, getTierCounts } from '../controllers/influencerController';
+import { getInfluencers, getInfluencerById, searchInfluencers, updateInfluencerProfile, getTierCounts, getOwnProfile } from '../controllers/influencerController';
 import { auth, optionalAuth, AuthRequest } from '../middleware/auth';
 import InfluencerProfile from '../models/InfluencerProfile';
 
@@ -10,6 +10,8 @@ router.get('/tier-counts', getTierCounts);
 router.get('/', optionalAuth, getInfluencers);
 
 router.get('/search', optionalAuth, searchInfluencers);
+
+router.get('/profile', auth, getOwnProfile);
 
 router.get('/:id', optionalAuth, getInfluencerById);
 
