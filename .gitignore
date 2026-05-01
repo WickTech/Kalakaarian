@@ -29,6 +29,24 @@ server/.env
 # NotebookLM state (tracks uploaded sources + notebook id)
 .notebooklm_state.json
 
-# Claude Code agent artifacts
+# Claude Code / AI agent artifacts
 .claude-flow/
 .claude/
+server/.claude-flow/
+GEMINI.md
+**/GEMINI.md
+.session-context.md
+mempalace.yaml
+opencode.json
+claude-auto.sh
+notebooklm.py
+entities.json
+
+# Alternate package manager lock files (project uses npm)
+pnpm-lock.yaml
+bun.lock
+bun.lockb
+
+# Scratch / temp files
+New Text Document.txt
+*.txt.bak
