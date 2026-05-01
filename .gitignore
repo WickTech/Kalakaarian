@@ -28,3 +28,7 @@ server/.env
 
 # NotebookLM state (tracks uploaded sources + notebook id)
 .notebooklm_state.json
+
+# Claude Code agent artifacts
+.claude-flow/
+.claude/
