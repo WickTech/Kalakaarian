@@ -77,7 +77,7 @@ export function Navbar() {
                 Start as Brand
               </button>
               <button
-                onClick={() => navigate("/login")}
+                onClick={() => navigate("/influencer-register")}
                 className="purple-pill px-4 py-2 text-sm"
               >
                 Join as Creator
