@@ -1,18 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Users, Target, TrendingUp, Shield, Sparkles } from "lucide-react";
+import { ArrowRight, Users, Target, TrendingUp, Sparkles } from "lucide-react";
 import { api } from "@/lib/api";
 
-interface LandingProps {
-  dark?: boolean;
-  toggleTheme?: () => void;
-}
-
-export default function Landing({ dark, toggleTheme }: LandingProps) {
+export default function Landing() {
   const navigate = useNavigate();
   const [tierCounts, setTierCounts] = useState<Record<string, number>>({ nano: 0, micro: 0, macro: 0, mega: 0 });
   const [loadingCounts, setLoadingCounts] = useState(true);
@@ -37,73 +31,30 @@ export default function Landing({ dark, toggleTheme }: LandingProps) {
   }, []);
 
   const tiers = [
-    {
-      key: "nano",
-      label: "Nano Creator",
-      range: "2K - 20K Followers",
-      count: tierCounts.nano,
-    },
-    {
-      key: "micro",
-      label: "Micro Creator",
-      range: "21K - 200K Followers",
-      count: tierCounts.micro,
-    },
-    {
-      key: "macro",
-      label: "Macro Creator",
-      range: "200K - 3M Followers",
-      count: tierCounts.macro,
-    },
-    {
-      key: "mega",
-      label: "Celebrity",
-      range: "3M+ Followers",
-      count: tierCounts.mega,
-    },
+    { key: "nano",  label: "Nano Creator",  range: "2K - 20K Followers",   count: tierCounts.nano },
+    { key: "micro", label: "Micro Creator", range: "21K - 200K Followers",  count: tierCounts.micro },
+    { key: "macro", label: "Macro Creator", range: "200K - 3M Followers",   count: tierCounts.macro },
+    { key: "mega",  label: "Celebrity",     range: "3M+ Followers",         count: tierCounts.mega },
   ];
 
   const whyKalakaarian = [
-    {
-      icon: Users,
-      title: "Creator Connectivity",
-      description: "Connect with countless creators in a single click, with zero margins.",
-    },
-    {
-      icon: Target,
-      title: "Fast Campaign Delivery",
-      description: "Get your campaign ready within 24 hours with the lowest platform fee.",
-    },
-    {
-      icon: TrendingUp,
-      title: "Track & Navigate",
-      description: "Track your payments and navigate your campaigns seamlessly.",
-    },
-    {
-      icon: Sparkles,
-      title: "AI Profile Suggestions",
-      description: "Use AI to find creators with 100% compatibility for your target audience.",
-    },
+    { icon: Users,      title: "Creator Connectivity",    description: "Connect with countless creators in a single click, with zero margins." },
+    { icon: Target,     title: "Fast Campaign Delivery",  description: "Get your campaign ready within 24 hours with the lowest platform fee." },
+    { icon: TrendingUp, title: "Track & Navigate",        description: "Track your payments and navigate your campaigns seamlessly." },
+    { icon: Sparkles,   title: "AI Profile Suggestions",  description: "Use AI to find creators with 100% compatibility for your target audience." },
   ];
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/30">
       {/* Header */}
       <header className="border-b border-border flex items-center justify-between px-4 py-3 shrink-0">
-        <div className="flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-2">
-            <img src="/k-logo-no-bg.png" alt="Kalakaarian" className="h-10 w-auto" />
-            <h1 className="font-mono text-sm uppercase tracking-[0.3em] font-bold">
-              KALAKAARIAN
-            </h1>
-          </Link>
-        </div>
-        <div className="flex items-center gap-2">
-          {toggleTheme && <ThemeToggle dark={dark} toggle={toggleTheme} />}
-          <Link to="/role-select">
-            <Button size="sm">Get Started</Button>
-          </Link>
-        </div>
+        <Link to="/" className="flex items-center gap-2">
+          <img src="/k-logo-no-bg.png" alt="Kalakaarian" className="h-10 w-auto" />
+          <h1 className="font-mono text-sm uppercase tracking-[0.3em] font-bold">KALAKAARIAN</h1>
+        </Link>
+        <Link to="/login">
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90">Login</Button>
+        </Link>
       </header>
 
       {/* Hero Section */}
@@ -111,13 +62,13 @@ export default function Landing({ dark, toggleTheme }: LandingProps) {
         <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 via-fuchsia-600/10 to-pink-600/10" />
         <div className="absolute top-10 left-10 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl" />
-        
+
         <div className="relative max-w-6xl mx-auto text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium">
             <Sparkles className="h-4 w-4" />
             India&apos;s First AI-Powered Marketplace of Kalakaar (Creators)
           </div>
-          
+
           <h1 className="text-4xl md:text-6xl font-black tracking-tight" style={{ fontFamily: "Oswald, sans-serif" }}>
             <span className="bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent">
               Influence. Impact.
@@ -127,39 +78,39 @@ export default function Landing({ dark, toggleTheme }: LandingProps) {
               Growth.
             </span>
           </h1>
-          
+
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Bridge the gap between brands and influencers. Discover authentic partnerships 
+            Bridge the gap between brands and influencers. Discover authentic partnerships
             that drive real results for your marketing campaigns.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link to="/role-select">
-              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 gap-2">
+              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90">
                 Start as Brand
-                <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
             <Link to="/role-select">
-              <Button size="lg" variant="outline" className="gap-2">
+              <Button size="lg" variant="outline">
                 Join as Influencer
-                <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Tier Grid - Second Section */}
+      {/* Tier Grid */}
       <section className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold font-oswald tracking-tight mb-4">Explore Creators</h2>
+            <h2 className="text-4xl font-bold font-oswald tracking-tight mb-4 bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent">
+              Explore Creators
+            </h2>
             <p className="text-muted-foreground">
               Find the perfect influencer tier for your budget and campaign goals
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {tiers.map((tier) => (
               <div
@@ -168,12 +119,8 @@ export default function Landing({ dark, toggleTheme }: LandingProps) {
                 className="border-2 border-border rounded-xl p-8 cursor-pointer group hover:border-purple-500 transition-all relative bg-card"
               >
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600/0 to-pink-600/0 group-hover:from-purple-600/5 group-hover:to-pink-600/5 transition-all" />
-                <span className="text-sm font-oswald font-medium text-muted-foreground mb-3 block">
-                  {tier.range}
-                </span>
-                <h3 className="text-3xl font-oswald font-bold mb-3 group-hover:text-purple-600 transition-colors">
-                  {tier.label}
-                </h3>
+                <span className="text-sm font-oswald font-medium text-muted-foreground mb-3 block">{tier.range}</span>
+                <h3 className="text-3xl font-oswald font-bold mb-3 group-hover:text-purple-600 transition-colors">{tier.label}</h3>
                 <p className="text-sm text-muted-foreground">
                   {loadingCounts ? "Loading..." : `${tier.count} Active Influencer${tier.count !== 1 ? 's' : ''}`}
                 </p>
@@ -183,19 +130,21 @@ export default function Landing({ dark, toggleTheme }: LandingProps) {
         </div>
       </section>
 
-      {/* Why Kalakaarian Section */}
+      {/* Why Kalakaarian */}
       <section className="py-16 px-4 bg-muted/30">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold font-oswald tracking-tight mb-4">Why Kalakaarian?</h2>
+            <h2 className="text-3xl font-bold font-oswald tracking-tight mb-4 bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent">
+              Why Kalakaarian?
+            </h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {whyKalakaarian.map((feature) => (
               <Card key={feature.title} className="bg-card border-border">
                 <CardContent className="pt-6">
-                  <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
-                    <feature.icon className="h-6 w-6 text-purple-600" />
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center mb-4">
+                    <feature.icon className="h-6 w-6 text-white" />
                   </div>
                   <h3 className="font-bold mb-2">{feature.title}</h3>
                   <p className="text-sm text-muted-foreground">{feature.description}</p>
@@ -206,28 +155,31 @@ export default function Landing({ dark, toggleTheme }: LandingProps) {
         </div>
       </section>
 
-      {/* Contact Us Section */}
+      {/* Contact Us */}
       <section className="py-16 px-4 bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600">
         <div className="max-w-4xl mx-auto text-center text-white">
           <h2 className="text-3xl font-bold mb-4">Contact Us</h2>
           <p className="text-white/90 mb-8 max-w-2xl mx-auto">
-            Have questions? We'd love to hear from you. Reach out to us and we'll get back to you soon.
+            Have questions? We&apos;d love to hear from you. Reach out to us and we&apos;ll get back to you soon.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/contact">
-              <Button size="lg" variant="secondary" className="gap-2">
-                Get in Touch
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
+          <Link to="/contact">
+            <Button size="lg" variant="secondary" className="gap-2">
+              Get in Touch
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-4 border-t">
-        <div className="max-w-6xl mx-auto text-center text-sm text-muted-foreground">
-          <p>&copy; 2026 Kalakaarian. All rights reserved.</p>
+      <footer className="py-8 px-4 border-t bg-background">
+        <div className="max-w-6xl mx-auto flex flex-col items-center gap-4">
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+            <Link to="/terms" className="hover:text-foreground transition-colors">Terms &amp; Conditions</Link>
+            <Link to="/refund-policy" className="hover:text-foreground transition-colors">Refund Policy</Link>
+            <Link to="/privacy-policy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+          </div>
+          <p className="text-sm text-muted-foreground">&copy; 2026 Kalakaarian. All rights reserved.</p>
         </div>
       </footer>
     </div>

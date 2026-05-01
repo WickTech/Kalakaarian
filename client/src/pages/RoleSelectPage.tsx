@@ -59,15 +59,15 @@ export default function RoleSelectPage() {
 
           <Card className="border-0 bg-white/95 shadow-xl">
             <CardHeader>
-              <div className="mb-2 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
+              <div className="mb-2 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white">
                 <Building2 className="h-5 w-5" />
               </div>
               <CardTitle>I&apos;m a Brand</CardTitle>
               <CardDescription>Find the perfect influencers for your next campaign.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button 
-                className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:opacity-95" 
+              <Button
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-95"
                 onClick={() => navigate("/brand-register")}
               >
                 Start as Brand

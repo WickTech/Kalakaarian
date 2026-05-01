@@ -2,6 +2,9 @@
 // Stored prices are the raw influencer ask; we multiply by (1 + margin) on read.
 export const PLATFORM_MARGIN_RATE = 0.05;
 
+// Additional platform fee charged at checkout (on top of margin-inclusive prices).
+export const PLATFORM_FEE_RATE = 0.08;
+
 type Pricing = {
   story?: number;
   reel?: number;

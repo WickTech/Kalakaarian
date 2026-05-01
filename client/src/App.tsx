@@ -9,6 +9,9 @@ import { CartDrawer } from "@/components/CartDrawer";
 import Landing from "./pages/Landing";
 import LoginPage from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";
+import TermsPage from "./pages/TermsPage";
+import RefundPolicyPage from "./pages/RefundPolicyPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import { InstallPrompt } from "@/components/InstallPrompt";
 
 const Marketplace = lazy(() => import("./pages/Marketplace"));
@@ -134,15 +137,7 @@ function AppContent() {
     <>
       <Suspense fallback={<PageLoader />}>
       <Routes>
-        <Route
-          path="/"
-          element={
-            <Landing
-              dark={dark}
-              toggleTheme={toggle}
-            />
-          }
-        />
+        <Route path="/" element={<Landing />} />
         <Route
           path="/marketplace"
           element={
@@ -263,6 +258,9 @@ function AppContent() {
           path="/contact"
           element={<ContactPage />}
         />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/refund-policy" element={<RefundPolicyPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       </Suspense>

@@ -144,9 +144,20 @@ export function CartDrawer({ open, onClose, items, removeFromCart, clearCart, to
               Campaign: <span className="font-medium text-foreground">{campaignName}</span>
             </div>
           )}
-          <div className="flex justify-between items-center">
-            <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Total</span>
-            <span className="font-mono text-lg text-terminal font-bold">{formatPrice(total)}</span>
+          <div className="space-y-1.5">
+            <div className="flex justify-between items-center">
+              <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Subtotal</span>
+              <span className="font-mono text-sm text-foreground">{formatPrice(total)}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Platform Fee (8%)</span>
+              <span className="font-mono text-sm text-muted-foreground">{formatPrice(Math.round(total * 0.08))}</span>
+            </div>
+            <div className="h-px bg-border" />
+            <div className="flex justify-between items-center">
+              <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Grand Total</span>
+              <span className="font-mono text-lg text-terminal font-bold">{formatPrice(Math.round(total * 1.08))}</span>
+            </div>
           </div>
           <button
             onClick={clearCart}

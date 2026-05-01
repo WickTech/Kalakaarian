@@ -161,7 +161,7 @@ export default function InfluencerRegisterPage() {
           {step === 3 && (
             <div className="space-y-4">
               <h2 className="font-display text-xl font-bold text-chalk">Set Your Rates</h2>
-              <p className="text-xs text-chalk-faint">5% platform markup added automatically at checkout</p>
+              <p className="text-xs text-chalk-faint">Brands see your price + 5% platform margin</p>
               <div className="grid grid-cols-2 gap-3">
                 {([
                   { key: "reelRate", label: "Instagram Reel (₹)", ph: "15000" },
@@ -172,6 +172,11 @@ export default function InfluencerRegisterPage() {
                   <div key={key}>
                     <label className="block text-xs text-chalk-dim mb-1.5">{label}</label>
                     <input type="number" value={form[key]} onChange={set(key)} className="dark-input w-full px-3 py-2.5 text-sm" placeholder={ph} />
+                    {form[key] && Number(form[key]) > 0 && (
+                      <p className="text-xs text-gold mt-1">
+                        Brands see: ₹{Math.round(Number(form[key]) * 1.05).toLocaleString("en-IN")}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
