@@ -156,14 +156,17 @@ export default function Landing() {
       </section>
 
       {/* Contact Us */}
-      <section className="py-16 px-4 bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600">
-        <div className="max-w-4xl mx-auto text-center text-white">
-          <h2 className="text-3xl font-bold mb-4">Contact Us</h2>
-          <p className="text-white/90 mb-8 max-w-2xl mx-auto">
+      <section className="relative py-16 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 via-fuchsia-600/10 to-pink-600/10" />
+        <div className="absolute top-0 left-10 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-10 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl" />
+        <div className="relative max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent">Contact Us</h2>
+          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
             Have questions? We&apos;d love to hear from you. Reach out to us and we&apos;ll get back to you soon.
           </p>
           <Link to="/contact">
-            <Button size="lg" variant="secondary" className="gap-2">
+            <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 gap-2">
               Get in Touch
               <ArrowRight className="h-4 w-4" />
             </Button>
