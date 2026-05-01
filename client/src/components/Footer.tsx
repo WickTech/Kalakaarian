@@ -8,8 +8,9 @@ const NAV_LINKS = [
 ];
 
 const LEGAL_LINKS = [
-  { label: "Privacy", to: "#" },
-  { label: "Terms", to: "#" },
+  { label: "Terms & Conditions", to: "/terms" },
+  { label: "Refund Policy", to: "/refund-policy" },
+  { label: "Privacy Policy", to: "/privacy-policy" },
 ];
 
 export function Footer() {

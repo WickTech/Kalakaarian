@@ -2,17 +2,11 @@ import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { INDIA_STATES } from "@/lib/constants";
 
 const INDUSTRIES = [
-  "Fashion",
-  "Technology",
-  "Food & Beverage",
-  "Health & Wellness",
-  "Finance",
-  "Entertainment",
-  "Retail",
-  "Education",
-  "Other",
+  "Fashion", "Technology", "Food & Beverage", "Health & Wellness",
+  "Finance", "Entertainment", "Retail", "Education", "Other",
 ];
 
 interface BrandForm {
@@ -21,19 +15,17 @@ interface BrandForm {
   email: string;
   phone: string;
   password: string;
+  confirmPassword: string;
   industry: string;
+  state: string;
 }
 
 export default function BrandRegisterPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
   const [form, setForm] = useState<BrandForm>({
-    companyName: "",
-    contactName: "",
-    email: "",
-    phone: "",
-    password: "",
-    industry: "",
+    companyName: "", contactName: "", email: "", phone: "",
+    password: "", confirmPassword: "", industry: "", state: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -45,9 +37,17 @@ export default function BrandRegisterPage() {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { companyName, contactName, email, phone, password, industry } = form;
-    if (!companyName || !contactName || !email || !phone || !password || !industry) {
+    const { companyName, contactName, email, phone, password, confirmPassword, industry, state } = form;
+    if (!companyName || !contactName || !email || !phone || !password || !confirmPassword || !industry || !state) {
       setError("All fields are required.");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
     setError("");
@@ -71,8 +71,12 @@ export default function BrandRegisterPage() {
   };
 
   return (
-    <main className="min-h-screen bg-obsidian flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md">
+    <main className="relative min-h-screen bg-obsidian overflow-hidden flex items-center justify-center px-4 py-10">
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 via-fuchsia-600/5 to-pink-600/10 pointer-events-none" />
+      <div className="absolute -top-20 -left-20 w-96 h-96 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-pink-500/15 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative z-10 w-full max-w-md">
         <Link
           to="/login"
           className="flex items-center gap-2 text-sm text-chalk-dim hover:text-chalk mb-8 transition-colors"
@@ -93,6 +97,7 @@ export default function BrandRegisterPage() {
               { key: "phone", label: "WhatsApp Number", type: "tel", ph: "+91 9876543210" },
               { key: "companyName", label: "Brand / Company Name", type: "text", ph: "Acme Corp" },
               { key: "password", label: "Password", type: "password", ph: "Min 8 characters" },
+              { key: "confirmPassword", label: "Confirm Password", type: "password", ph: "Re-enter password" },
             ] as const
           ).map(({ key, label, type, ph }) => (
             <div key={key}>
@@ -109,17 +114,17 @@ export default function BrandRegisterPage() {
 
           <div>
             <label className="block text-sm text-chalk-dim mb-1.5">Industry *</label>
-            <select
-              value={form.industry}
-              onChange={set("industry")}
-              className="dark-select w-full px-4 py-3 text-sm"
-            >
+            <select value={form.industry} onChange={set("industry")} className="dark-select w-full px-4 py-3 text-sm">
               <option value="">Select industry</option>
-              {INDUSTRIES.map((i) => (
-                <option key={i} value={i}>
-                  {i}
-                </option>
-              ))}
+              {INDUSTRIES.map((i) => <option key={i} value={i}>{i}</option>)}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm text-chalk-dim mb-1.5">State *</label>
+            <select value={form.state} onChange={set("state")} className="dark-select w-full px-4 py-3 text-sm">
+              <option value="">Select state</option>
+              {INDIA_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
 

@@ -15,7 +15,6 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import { InstallPrompt } from "@/components/InstallPrompt";
 
 const Marketplace = lazy(() => import("./pages/Marketplace"));
-const RoleSelectPage = lazy(() => import("./pages/RoleSelectPage"));
 const InfluencerRegisterPage = lazy(() => import("./pages/InfluencerRegisterPage"));
 const BrandRegisterPage = lazy(() => import("./pages/BrandRegisterPage"));
 const BrandCampaignPage = lazy(() => import("./pages/BrandCampaignPage"));
@@ -78,7 +77,7 @@ function BrandRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (user.role !== "brand") {
-    return <Navigate to="/role-select" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
@@ -100,7 +99,7 @@ function InfluencerRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (user.role !== "influencer") {
-    return <Navigate to="/role-select" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
@@ -152,7 +151,9 @@ function AppContent() {
           }
         />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/role-select" element={<RoleSelectPage />} />
+        <Route path="/role-select" element={<Navigate to="/" replace />} />
+        <Route path="/start-brand" element={<Navigate to="/brand-register" replace />} />
+        <Route path="/start-influencer" element={<Navigate to="/influencer-register" replace />} />
         <Route
           path="/influencer-register"
           element={<InfluencerRegisterPage />}

@@ -85,12 +85,12 @@ export default function Landing() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link to="/role-select">
+            <Link to="/brand-register">
               <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90">
                 Start as Brand
               </Button>
             </Link>
-            <Link to="/role-select">
+            <Link to="/influencer-register">
               <Button size="lg" variant="outline">
                 Join as Influencer
               </Button>

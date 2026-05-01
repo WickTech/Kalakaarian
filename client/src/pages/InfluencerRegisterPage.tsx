@@ -2,21 +2,17 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { INDIA_STATES } from "@/lib/constants";
 
-const GENRES = [
-  "Food", "Tech", "Fashion", "Travel", "Fitness",
-  "Beauty", "Gaming", "Lifestyle", "Finance", "Education", "Comedy", "Music",
-];
-const COUNTRIES = ["India", "UAE", "USA", "UK", "Singapore"];
+const GENRES = ["Food", "Tech", "Fashion", "Travel", "Fitness", "Beauty", "Gaming", "Lifestyle", "Finance", "Education", "Comedy", "Music"];
 const DEFAULT_AVATAR = "https://api.dicebear.com/7.x/avataaars/svg?seed=default";
-
 const STEPS = ["Basic Info", "Genre", "Platforms", "Rates", "Location"];
 
 interface InfluencerForm {
-  name: string; email: string; phone: string; password: string;
+  name: string; email: string; phone: string; password: string; confirmPassword: string;
   genres: string[]; instagram: string; youtube: string;
   reelRate: string; storyRate: string; longVideoRate: string; shortsRate: string; bio: string;
-  city: string; state: string; country: string;
+  city: string; state: string;
 }
 
 export default function InfluencerRegisterPage() {
@@ -26,10 +22,10 @@ export default function InfluencerRegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState<InfluencerForm>({
-    name: "", email: "", phone: "", password: "",
+    name: "", email: "", phone: "", password: "", confirmPassword: "",
     genres: [], instagram: "", youtube: "",
     reelRate: "", storyRate: "", longVideoRate: "", shortsRate: "", bio: "",
-    city: "", state: "", country: "India",
+    city: "", state: "",
   });
 
   const set = (key: keyof InfluencerForm) =>
@@ -37,21 +33,18 @@ export default function InfluencerRegisterPage() {
       setForm((p) => ({ ...p, [key]: e.target.value }));
 
   const toggleGenre = (g: string) =>
-    setForm((p) => ({
-      ...p,
-      genres: p.genres.includes(g) ? p.genres.filter((x) => x !== g) : [...p.genres, g],
-    }));
+    setForm((p) => ({ ...p, genres: p.genres.includes(g) ? p.genres.filter((x) => x !== g) : [...p.genres, g] }));
 
   const validate = (): boolean => {
-    if (step === 0 && (!form.name || !form.email || !form.phone || !form.password)) {
-      setError("All fields are required."); return false;
+    if (step === 0) {
+      if (!form.name || !form.email || !form.phone || !form.password || !form.confirmPassword) {
+        setError("All fields are required."); return false;
+      }
+      if (form.password.length < 8) { setError("Password must be at least 8 characters."); return false; }
+      if (form.password !== form.confirmPassword) { setError("Passwords do not match."); return false; }
     }
-    if (step === 1 && form.genres.length === 0) {
-      setError("Select at least one genre."); return false;
-    }
-    if (step === 2 && !form.instagram && !form.youtube) {
-      setError("At least one platform handle is required."); return false;
-    }
+    if (step === 1 && form.genres.length === 0) { setError("Select at least one genre."); return false; }
+    if (step === 2 && !form.instagram && !form.youtube) { setError("At least one platform handle is required."); return false; }
     return true;
   };
 
@@ -59,17 +52,14 @@ export default function InfluencerRegisterPage() {
   const back = () => { setError(""); setStep((s) => s - 1); };
 
   const handleSubmit = async () => {
-    if (!form.city || !form.country) { setError("City and country are required."); return; }
+    if (!form.city || !form.state) { setError("City and state are required."); return; }
     setLoading(true);
     try {
       await register({
         email: form.email, phone: form.phone, password: form.password, name: form.name,
         role: "influencer",
         niches: form.genres as never[],
-        platform: [
-          ...(form.instagram ? ["instagram"] : []),
-          ...(form.youtube ? ["youtube"] : []),
-        ],
+        platform: [...(form.instagram ? ["instagram"] : []), ...(form.youtube ? ["youtube"] : [])],
         tier: "micro", bio: form.bio,
         socialHandles: { instagram: form.instagram || undefined, youtube: form.youtube || undefined },
         profileImage: DEFAULT_AVATAR,
@@ -90,13 +80,16 @@ export default function InfluencerRegisterPage() {
   };
 
   return (
-    <main className="min-h-screen bg-obsidian px-4 py-10">
-      <div className="mx-auto w-full max-w-lg">
+    <main className="relative min-h-screen bg-obsidian overflow-hidden px-4 py-10">
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 via-fuchsia-600/5 to-pink-600/10 pointer-events-none" />
+      <div className="absolute -top-20 -left-20 w-96 h-96 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-pink-500/15 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative z-10 mx-auto w-full max-w-lg">
         <Link to="/login" className="flex items-center gap-2 text-sm text-chalk-dim hover:text-chalk mb-8 transition-colors">
           <ArrowLeft className="h-4 w-4" /> Back
         </Link>
 
-        {/* Stepper */}
         <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2">
           {STEPS.map((label, i) => (
             <div key={label} className="flex items-center gap-2 flex-shrink-0">
@@ -118,6 +111,7 @@ export default function InfluencerRegisterPage() {
                 { key: "email", label: "Email", type: "email", ph: "priya@example.com" },
                 { key: "phone", label: "WhatsApp Number", type: "tel", ph: "+91 9876543210" },
                 { key: "password", label: "Password", type: "password", ph: "Min 8 characters" },
+                { key: "confirmPassword", label: "Confirm Password", type: "password", ph: "Re-enter password" },
               ] as const).map(({ key, label, type, ph }) => (
                 <div key={key}>
                   <label className="block text-sm text-chalk-dim mb-1.5">{label} *</label>
@@ -161,7 +155,6 @@ export default function InfluencerRegisterPage() {
           {step === 3 && (
             <div className="space-y-4">
               <h2 className="font-display text-xl font-bold text-chalk">Set Your Rates</h2>
-              <p className="text-xs text-chalk-faint">Brands see your price + 5% platform margin</p>
               <div className="grid grid-cols-2 gap-3">
                 {([
                   { key: "reelRate", label: "Instagram Reel (₹)", ph: "15000" },
@@ -172,11 +165,6 @@ export default function InfluencerRegisterPage() {
                   <div key={key}>
                     <label className="block text-xs text-chalk-dim mb-1.5">{label}</label>
                     <input type="number" value={form[key]} onChange={set(key)} className="dark-input w-full px-3 py-2.5 text-sm" placeholder={ph} />
-                    {form[key] && Number(form[key]) > 0 && (
-                      <p className="text-xs text-gold mt-1">
-                        Brands see: ₹{Math.round(Number(form[key]) * 1.05).toLocaleString("en-IN")}
-                      </p>
-                    )}
                   </div>
                 ))}
               </div>
@@ -191,21 +179,18 @@ export default function InfluencerRegisterPage() {
           {step === 4 && (
             <div className="space-y-4">
               <h2 className="font-display text-xl font-bold text-chalk">Your Location</h2>
-              {([
-                { key: "city", label: "City", ph: "Mumbai" },
-                { key: "state", label: "State", ph: "Maharashtra" },
-              ] as const).map(({ key, label, ph }) => (
-                <div key={key}>
-                  <label className="block text-sm text-chalk-dim mb-1.5">{label} *</label>
-                  <input value={form[key]} onChange={set(key)} className="dark-input w-full px-4 py-3 text-sm" placeholder={ph} />
-                </div>
-              ))}
               <div>
-                <label className="block text-sm text-chalk-dim mb-1.5">Country *</label>
-                <select value={form.country} onChange={set("country")} className="dark-select w-full px-4 py-3 text-sm">
-                  {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                <label className="block text-sm text-chalk-dim mb-1.5">City *</label>
+                <input value={form.city} onChange={set("city")} className="dark-input w-full px-4 py-3 text-sm" placeholder="Mumbai" />
+              </div>
+              <div>
+                <label className="block text-sm text-chalk-dim mb-1.5">State *</label>
+                <select value={form.state} onChange={set("state")} className="dark-select w-full px-4 py-3 text-sm">
+                  <option value="">Select state</option>
+                  {INDIA_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
+              <p className="text-xs text-chalk-faint">Country: India</p>
             </div>
           )}
 
@@ -218,9 +203,7 @@ export default function InfluencerRegisterPage() {
               </button>
             )}
             {step < 4 ? (
-              <button onClick={next} className="flex-1 purple-pill py-3 text-sm">
-                Continue →
-              </button>
+              <button onClick={next} className="flex-1 purple-pill py-3 text-sm">Continue →</button>
             ) : (
               <button onClick={handleSubmit} disabled={loading} className="flex-1 gold-pill py-3 text-sm disabled:opacity-50">
                 {loading ? "Creating Account..." : "Complete Profile ✓"}
