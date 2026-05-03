@@ -1,7 +1,7 @@
 import './env'; // MUST be first — loads dotenv before Supabase client initializes
 import * as Sentry from '@sentry/node';
 import express from 'express';
-import cors from 'cors';
+import { Request, Response, NextFunction } from 'express';
 import serverless from 'serverless-http';
 import authRoutes from './routes/auth';
 import influencerRoutes from './routes/influencers';
@@ -44,21 +44,31 @@ const PROD_ORIGINS = [
   'https://www.kalakaarian.com',
   'https://kalakaarian.vercel.app',
 ];
-const allowedOrigins = [
-  ...PROD_ORIGINS,
-  ...(process.env.CORS_ORIGINS || '').split(',').filter(Boolean),
-];
 const isDev = process.env.NODE_ENV !== 'production';
-app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin) return cb(null, true); // server-to-server, curl
-    if (allowedOrigins.includes(origin)) return cb(null, true);
-    // Allow any localhost port in dev (Vite may pick 5173, 5174, etc.)
-    if (isDev && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return cb(null, true);
-    cb(new Error('CORS: origin not allowed'));
-  },
-  credentials: true,
-}));
+const extraOrigins = (process.env.CORS_ORIGINS || '').split(',').filter(Boolean);
+
+const isAllowedOrigin = (origin: string): boolean => {
+  if (PROD_ORIGINS.includes(origin)) return true;
+  if (extraOrigins.includes(origin)) return true;
+  // Vercel preview deploys: kalakaarian-<hash>-<team>.vercel.app
+  if (/^https:\/\/kalakaarian[a-z0-9-]*\.vercel\.app$/.test(origin)) return true;
+  if (isDev && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return true;
+  return false;
+};
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const origin = req.headers.origin as string | undefined;
+  if (origin && isAllowedOrigin(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.setHeader('Access-Control-Max-Age', '86400');
+  }
+  if (req.method === 'OPTIONS') return res.status(204).end();
+  next();
+});
 
 // Raw body for Razorpay webhook signature verification (must precede express.json())
 app.use('/api/membership/webhook', express.raw({ type: 'application/json' }));
