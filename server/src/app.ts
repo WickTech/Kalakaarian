@@ -39,7 +39,15 @@ if (!process.env.CORS_ORIGINS) {
 
 const app = express();
 
-const allowedOrigins = (process.env.CORS_ORIGINS || '').split(',').filter(Boolean);
+const PROD_ORIGINS = [
+  'https://kalakaarian.com',
+  'https://www.kalakaarian.com',
+  'https://kalakaarian.vercel.app',
+];
+const allowedOrigins = [
+  ...PROD_ORIGINS,
+  ...(process.env.CORS_ORIGINS || '').split(',').filter(Boolean),
+];
 const isDev = process.env.NODE_ENV !== 'production';
 app.use(cors({
   origin: (origin, cb) => {
