@@ -2,7 +2,6 @@ import './env'; // MUST be first — loads dotenv before Supabase client initial
 import * as Sentry from '@sentry/node';
 import express from 'express';
 import { Request, Response, NextFunction } from 'express';
-import serverless from 'serverless-http';
 import authRoutes from './routes/auth';
 import influencerRoutes from './routes/influencers';
 import campaignRoutes from './routes/campaigns';
@@ -101,11 +100,9 @@ if (process.env.SENTRY_DSN) {
   Sentry.setupExpressErrorHandler(app);
 }
 
-const handler = serverless(app);
-
 if (process.env.LOCAL_LISTEN === '1') {
   const port = Number(process.env.PORT) || 4000;
   app.listen(port, () => console.log(`local: http://localhost:${port}`));
 }
 
-export { handler };
+export default app;
